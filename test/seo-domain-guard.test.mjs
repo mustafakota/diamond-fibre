@@ -7,6 +7,7 @@ import {
   isValidHttpUrl,
   getBaseUrl,
   DOMAIN_PLACEHOLDER,
+  CANONICAL_PRODUCTION_URL,
 } from '../src/lib/seo.ts';
 
 test('SEO Domain Guard: detects placeholder and invalid domains', () => {
@@ -18,6 +19,8 @@ test('SEO Domain Guard: detects placeholder and invalid domains', () => {
   assert.equal(isPlaceholderOrInvalidDomain('random-text-without-protocol'), true);
 
   // Valid domains must return false
+  assert.equal(isPlaceholderOrInvalidDomain(CANONICAL_PRODUCTION_URL), false);
+  assert.equal(isPlaceholderOrInvalidDomain('https://diamond-fibre.vercel.app'), false);
   assert.equal(isPlaceholderOrInvalidDomain('https://diamondfibre.com'), false);
   assert.equal(isPlaceholderOrInvalidDomain('https://www.diamondfibre.com'), false);
   assert.equal(isPlaceholderOrInvalidDomain('http://localhost:3000'), false);
@@ -67,6 +70,27 @@ test('SEO Domain Guard: allows localhost fallback during development/local build
 
     const url = getBaseUrl();
     assert.equal(url, 'http://localhost:3000');
+  } finally {
+    process.env.NODE_ENV = originalEnv;
+    process.env.NEXT_PUBLIC_SITE_URL = originalUrl;
+  }
+});
+
+test('SEO Domain Guard: resolves canonical production URL in production', () => {
+  const originalEnv = process.env.NODE_ENV;
+  const originalUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
+  try {
+    process.env.NODE_ENV = 'production';
+
+    // 1. With explicit valid production URL
+    process.env.NEXT_PUBLIC_SITE_URL = 'https://diamond-fibre.vercel.app';
+    assert.equal(getBaseUrl(), 'https://diamond-fibre.vercel.app');
+
+    // 2. Fallback when unconfigured in production
+    process.env.NEXT_PUBLIC_SITE_URL = '';
+    assert.equal(getBaseUrl(), CANONICAL_PRODUCTION_URL);
+    assert.equal(getBaseUrl(), 'https://diamond-fibre.vercel.app');
   } finally {
     process.env.NODE_ENV = originalEnv;
     process.env.NEXT_PUBLIC_SITE_URL = originalUrl;

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 
 export type Locale = 'en' | 'hi';
 
+export const CANONICAL_PRODUCTION_URL = 'https://diamond-fibre.vercel.app';
 export const DOMAIN_PLACEHOLDER = 'https://[CONFIRMED_PRODUCTION_DOMAIN]';
 
 /**
@@ -34,7 +35,7 @@ export function isPlaceholderOrInvalidDomain(url: string | undefined): boolean {
 
 /**
  * Resolves the canonical base URL safely:
- * - In production: strictly enforces a verified, non-placeholder domain. Throws an explicit error if missing.
+ * - In production: defaults to the confirmed canonical URL (https://diamond-fibre.vercel.app) or verified non-placeholder NEXT_PUBLIC_SITE_URL.
  * - In development/testing: safely falls back to http://localhost:3000 if unset or placeholder.
  * Never outputs DOMAIN_PLACEHOLDER to public crawlers.
  */
@@ -47,14 +48,17 @@ export function getBaseUrl(): string {
     configuredUrl && (configuredUrl.includes('localhost') || configuredUrl.includes('127.0.0.1'));
 
   if (isProduction && !isLocalHost) {
-    if (isPlaceholderOrInvalidDomain(configuredUrl) || !isValidHttpUrl(configuredUrl || '')) {
-      throw new Error(
-        '[CRITICAL PRODUCTION SEO CONFIGURATION ERROR]: Production environment detected with missing or placeholder NEXT_PUBLIC_SITE_URL. ' +
-          'A valid registered production domain must be configured in environment variables before deploying to production. ' +
-          'The placeholder [CONFIRMED_PRODUCTION_DOMAIN] is strictly blocked from publishing.'
-      );
+    if (configuredUrl) {
+      if (isPlaceholderOrInvalidDomain(configuredUrl) || !isValidHttpUrl(configuredUrl)) {
+        throw new Error(
+          '[CRITICAL PRODUCTION SEO CONFIGURATION ERROR]: Production environment detected with missing or placeholder NEXT_PUBLIC_SITE_URL. ' +
+            'A valid registered production domain must be configured in environment variables before deploying to production. ' +
+            'The placeholder [CONFIRMED_PRODUCTION_DOMAIN] is strictly blocked from publishing.'
+        );
+      }
+      return configuredUrl.replace(/\/+$/, '');
     }
-    return (configuredUrl as string).replace(/\/+$/, '');
+    return CANONICAL_PRODUCTION_URL;
   }
 
   // Development, local build testing, or CI environment fallback
