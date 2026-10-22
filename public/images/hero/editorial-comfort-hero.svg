@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <linearGradient id="warmBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FAF8F4"/>
+      <stop offset="50%" stop-color="#F3EFE7"/>
+      <stop offset="100%" stop-color="#E5DCCE"/>
+    </linearGradient>
+    <linearGradient id="pillowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F3EFE7"/>
+    </linearGradient>
+    <linearGradient id="drapeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E5DCCE"/>
+      <stop offset="50%" stop-color="#D9CCB6"/>
+      <stop offset="100%" stop-color="#C7B69B"/>
+    </linearGradient>
+    <linearGradient id="terracottaAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#BF4D28"/>
+      <stop offset="100%" stop-color="#D65A32"/>
+    </linearGradient>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#22231F" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="800" height="600" fill="url(#warmBg)"/>
+
+  <!-- Architectural Wall & Morning Light Beam -->
+  <polygon points="120,0 380,0 260,600 0,600" fill="#FFFFFF" opacity="0.4"/>
+
+  <!-- Bed Base / Platform -->
+  <rect x="80" y="320" width="640" height="220" rx="20" fill="#22231F" opacity="0.05"/>
+  <rect x="90" y="300" width="620" height="210" rx="16" fill="#FAF8F4" stroke="#D9CCB6" stroke-width="2" filter="url(#softShadow)"/>
+
+  <!-- Fitted Mattress Base -->
+  <rect x="110" y="270" width="580" height="150" rx="12" fill="#FFFFFF" stroke="#E5DCCE" stroke-width="2"/>
+  <line x1="110" y1="310" x2="690" y2="310" stroke="#F3EFE7" stroke-width="2" stroke-dasharray="6,6"/>
+
+  <!-- Restful Pillows -->
+  <rect x="140" y="190" width="220" height="110" rx="24" fill="url(#pillowGrad)" stroke="#D9CCB6" stroke-width="1.5" filter="url(#softShadow)"/>
+  <rect x="420" y="190" width="220" height="110" rx="24" fill="url(#pillowGrad)" stroke="#D9CCB6" stroke-width="1.5" filter="url(#softShadow)"/>
+  <!-- Front accent cushion -->
+  <rect x="270" y="225" width="240" height="95" rx="18" fill="#FDF5F2" stroke="#BF4D28" stroke-opacity="0.4" stroke-width="1.5" filter="url(#softShadow)"/>
+
+  <!-- Layered Bedding Quilt / Razai Drape -->
+  <path d="M 110,330 Q 300,315 480,335 Q 620,320 690,340 L 690,490 Q 520,510 380,485 Q 240,515 110,480 Z" fill="url(#drapeGrad)" filter="url(#softShadow)"/>
+  
+  <!-- Quilted Wave Stitch Motif -->
+  <path d="M 140,360 Q 250,345 360,365 Q 470,350 580,365 Q 640,355 670,360" fill="none" stroke="#FAF8F4" stroke-width="2" opacity="0.6"/>
+  <path d="M 130,400 Q 240,385 350,405 Q 460,390 570,405 Q 630,395 670,400" fill="none" stroke="#FAF8F4" stroke-width="2" opacity="0.6"/>
+  <path d="M 120,440 Q 230,425 340,445 Q 450,430 560,445 Q 620,435 670,440" fill="none" stroke="#FAF8F4" stroke-width="2" opacity="0.6"/>
+
+  <!-- Terracotta Runner Drape -->
+  <path d="M 180,430 L 600,430 L 590,490 L 190,490 Z" fill="url(#terracottaAccent)" opacity="0.9"/>
+
+  <!-- Editorial Disclaimer Capsule -->
+  <g transform="translate(40, 520)">
+    <rect width="720" height="48" rx="24" fill="#22231F" opacity="0.9"/>
+    <text x="360" y="28" fill="#FAF8F4" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" text-anchor="middle" letter-spacing="0.5">
+      EDITORIAL LIFESTYLE ART DIRECTION — REST &amp; COMFORT (REPRESENTATIVE BEDDING LAYERS)
+    </text>
+  </g>
+</svg>
