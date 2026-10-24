@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
 import { manrope, inter, notoSansDevanagari } from '@/lib/fonts';
+import { getBaseUrl } from '@/lib/seo';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import MicrosoftClarity from '@/components/analytics/MicrosoftClarity';
 import './globals.css';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getBaseUrl()),
   title: 'Diamond Fibre | Bedding Manufacturer in Ratlam',
   description:
     'Bedding manufacturer in Ratlam, Madhya Pradesh. Direct manufacturing of mattresses (gaddas), pillows, razais, and blankets.',

@@ -2,7 +2,8 @@
 
 Official production website for **Diamond Fibre**, a bedding manufacturing business established in 2018 in Ratlam, Madhya Pradesh, India.
 
-- **Production Domain:** [https://diamond-fibre.vercel.app](https://diamond-fibre.vercel.app)
+- **Official Production Domain:** [https://diamondfibre.shop](https://diamondfibre.shop)
+- **Vercel Preview Domain:** [https://diamond-fibre.vercel.app](https://diamond-fibre.vercel.app)
 - **Primary Categories:** Mattresses (Gaddas), Pillows, Razais, and Blankets.
 
 ---
@@ -59,7 +60,7 @@ npm run build
 Copy `.env.example` to `.env.local` for local development:
 
 ```ini
-NEXT_PUBLIC_SITE_URL=https://diamond-fibre.vercel.app
+NEXT_PUBLIC_SITE_URL=https://diamondfibre.shop
 NEXT_PUBLIC_CONTACT_PHONE=+917974644185
 NEXT_PUBLIC_WHATSAPP_NUMBER=917974644185
 WHOLESALE_RECIPIENT_EMAIL=diamondfibreandcotton@gmail.com

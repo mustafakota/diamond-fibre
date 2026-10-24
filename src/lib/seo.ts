@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 
 export type Locale = 'en' | 'hi';
 
-export const CANONICAL_PRODUCTION_URL = 'https://diamond-fibre.vercel.app';
+export const CANONICAL_PRODUCTION_URL = 'https://diamondfibre.shop';
+export const PREVIEW_PRODUCTION_URL = 'https://diamond-fibre.vercel.app';
 export const DOMAIN_PLACEHOLDER = 'https://[CONFIRMED_PRODUCTION_DOMAIN]';
 
 /**
@@ -35,7 +36,7 @@ export function isPlaceholderOrInvalidDomain(url: string | undefined): boolean {
 
 /**
  * Resolves the canonical base URL safely:
- * - In production: defaults to the confirmed canonical URL (https://diamond-fibre.vercel.app) or verified non-placeholder NEXT_PUBLIC_SITE_URL.
+ * - In production: defaults to the official canonical URL (https://diamondfibre.shop) or verified non-placeholder NEXT_PUBLIC_SITE_URL.
  * - In development/testing: safely falls back to http://localhost:3000 if unset or placeholder.
  * Never outputs DOMAIN_PLACEHOLDER to public crawlers.
  */
@@ -113,6 +114,7 @@ export function buildLocalizedMetadata({
     : defaultImage;
 
   return {
+    metadataBase: new URL(baseUrl),
     title,
     description,
     alternates: {

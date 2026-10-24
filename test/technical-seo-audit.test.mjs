@@ -49,6 +49,8 @@ test('Technical SEO: robots.ts permits public crawling and disallows API routes'
 });
 
 test('Technical SEO: buildLocalizedMetadata emits regional en-IN and hi-IN alternates and complete robots directives', () => {
+  assert.equal(CANONICAL_PRODUCTION_URL, 'https://diamondfibre.shop');
+
   const meta = buildLocalizedMetadata({
     locale: 'en',
     pathSegment: 'products/mattresses',
@@ -66,6 +68,46 @@ test('Technical SEO: buildLocalizedMetadata emits regional en-IN and hi-IN alter
   assert.equal(meta.robots?.index, true, 'Robots index must be true');
   assert.equal(meta.robots?.follow, true, 'Robots follow must be true');
   assert.equal(meta.robots?.googleBot?.['max-image-preview'], 'large', 'Must permit large image preview for Google Discover and rich snippets');
+  assert.ok(meta.metadataBase, 'Must configure metadataBase');
+});
+
+test('Technical SEO: production environment resolves canonical URLs to https://diamondfibre.shop', () => {
+  const originalEnv = process.env.NODE_ENV;
+  const originalUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
+  try {
+    process.env.NODE_ENV = 'production';
+    process.env.NEXT_PUBLIC_SITE_URL = '';
+
+    const enMeta = buildLocalizedMetadata({
+      locale: 'en',
+      pathSegment: 'products/mattresses',
+      title: 'Mattresses',
+      description: 'Handcrafted mattresses',
+    });
+
+    assert.equal(enMeta.alternates?.canonical, 'https://diamondfibre.shop/en/products/mattresses');
+    assert.equal(enMeta.alternates?.languages?.['en-IN'], 'https://diamondfibre.shop/en/products/mattresses');
+    assert.equal(enMeta.alternates?.languages?.['hi-IN'], 'https://diamondfibre.shop/hi/products/mattresses');
+    assert.equal(enMeta.alternates?.languages?.['x-default'], 'https://diamondfibre.shop/en/products/mattresses');
+    assert.equal(enMeta.openGraph?.url, 'https://diamondfibre.shop/en/products/mattresses');
+    assert.equal(enMeta.metadataBase?.href, 'https://diamondfibre.shop/');
+
+    const hiMeta = buildLocalizedMetadata({
+      locale: 'hi',
+      pathSegment: 'products/mattresses',
+      title: 'गद्दे',
+      description: 'हैंडक्राफ़्टेड गद्दे',
+    });
+
+    assert.equal(hiMeta.alternates?.canonical, 'https://diamondfibre.shop/hi/products/mattresses');
+    assert.equal(hiMeta.alternates?.languages?.['en-IN'], 'https://diamondfibre.shop/en/products/mattresses');
+    assert.equal(hiMeta.alternates?.languages?.['hi-IN'], 'https://diamondfibre.shop/hi/products/mattresses');
+    assert.equal(hiMeta.openGraph?.url, 'https://diamondfibre.shop/hi/products/mattresses');
+  } finally {
+    process.env.NODE_ENV = originalEnv;
+    process.env.NEXT_PUBLIC_SITE_URL = originalUrl;
+  }
 });
 
 test('Technical SEO: Google Search Console verification token is preserved in root layout', () => {

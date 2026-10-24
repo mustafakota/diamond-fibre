@@ -51,7 +51,7 @@ test('Google Search Console HTML Verification: Prerendered HTML <head> contains 
   assert.equal((hiHead.match(anyVerificationRegex) || []).length, 1, 'No duplicate google-site-verification tags in Hindi <head>');
 
   // Ensure canonicals, hreflang, Open Graph, and Twitter metadata remain intact
-  assert.match(enHead, /<link[^>]+rel=["']canonical["'][^>]+href=["']http:\/\/localhost:3000\/en["']/);
+  assert.match(enHead, /<link[^>]+rel=["']canonical["'][^>]+href=["'](http:\/\/localhost:3000|https:\/\/diamondfibre\.shop)\/en["']/);
   assert.match(enHead, /<link[^>]+hrefLang=["']en["']/);
   assert.match(enHead, /<link[^>]+hrefLang=["']hi["']/);
   assert.match(enHead, /<meta\s+property=["']og:title["']/);
