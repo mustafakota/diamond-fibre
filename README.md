@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Diamond Fibre: Official Web Application
 
-## Getting Started
+Official production website for **Diamond Fibre**, a bedding manufacturing business established in 2018 in Ratlam, Madhya Pradesh, India.
 
-First, run the development server:
+- **Production Domain:** [https://diamond-fibre.vercel.app](https://diamond-fibre.vercel.app)
+- **Primary Categories:** Mattresses (Gaddas), Pillows, Razais, and Blankets.
+
+---
+
+## Technology Stack
+
+- **Framework:** Next.js 16 (App Router with Turbopack)
+- **Runtime:** React 19 & TypeScript 5
+- **Styling:** Tailwind CSS v4 (with `@theme` CSS variables design tokens)
+- **Animations:** Motion (Framer Motion v14) with full `prefers-reduced-motion` compliance
+- **Typography:** Manrope (headings), Inter (body UI), and Noto Sans Devanagari (Hindi) via `next/font/google`
+- **Email Delivery:** Resend transactional email API with strict zero-PII logging and fallback to WhatsApp
+- **Analytics:** Google Analytics 4 (`G-RCC1Y4HKY0`) & Microsoft Clarity (`z1mm5acuh0`) with client-side route tracking and privacy masking
+
+---
+
+## Architectural Highlights
+
+1. **Bilingual Routing:** Complete parity across English (`/en`) and Hindi (`/hi`) with truthful bilingual schema and localized dictionaries.
+2. **Four Core Bedding Categories:**
+   - Mattresses / Gaddas (`/products/mattresses`) with 308 permanent redirect from `/products/gaddas`
+   - Pillows (`/products/pillows`)
+   - Razais (`/products/razais`)
+   - Blankets (`/products/blankets`)
+3. **SEO & Domain Guard:** [`src/lib/seo.ts`](src/lib/seo.ts) validates canonical production URLs and blocks deployment if unconfirmed placeholder domains are present.
+4. **Wholesale Enquiry Boundary:** Server-side validation, honeypot bot trap, zero-PII operational logging, and graceful WhatsApp direct fallback.
+5. **Session Privacy:** Microsoft Clarity session recordings enforce `data-clarity-mask="true"` on the wholesale enquiry form to prevent capturing customer personal details.
+
+---
+
+## Available Scripts
 
 ```bash
+# Run local development server (http://localhost:3000)
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Run automated unit tests
+npm test
+
+# Run ESLint validation
+npm run lint
+
+# Run TypeScript compilation check
+npx tsc --noEmit
+
+# Create optimized production build
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Configuration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy `.env.example` to `.env.local` for local development:
 
-## Learn More
+```ini
+NEXT_PUBLIC_SITE_URL=https://diamond-fibre.vercel.app
+NEXT_PUBLIC_CONTACT_PHONE=+917974644185
+NEXT_PUBLIC_WHATSAPP_NUMBER=917974644185
+WHOLESALE_RECIPIENT_EMAIL=diamondfibreandcotton@gmail.com
+RESEND_API_KEY=
+WHOLESALE_FROM_EMAIL=
+```
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> **Security Note:** Secrets such as `RESEND_API_KEY` must remain server-side only and are excluded from Git by `.gitignore`.

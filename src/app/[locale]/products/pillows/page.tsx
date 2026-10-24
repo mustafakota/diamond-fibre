@@ -1,13 +1,12 @@
-import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Locale, buildLocalizedMetadata } from '@/lib/seo';
+import { Locale, buildLocalizedMetadata, buildBreadcrumbJsonLd, getBaseUrl } from '@/lib/seo';
 import { CATEGORIES_DATA } from '@/content/catalog';
 import { SeasonalNotice } from '@/components/categories/SeasonalNotice';
 import { Badge } from '@/components/ui/Badge';
 import { FadeIn } from '@/components/motion/FadeIn';
 import { buildWhatsAppLink } from '@/lib/whatsapp';
-import { MessageCircle, ArrowRight, Shield, PackageCheck, Sparkles, CheckCircle2 } from 'lucide-react';
+import { MessageCircle, ArrowRight } from 'lucide-react';
 
 export async function generateMetadata({
   params,
@@ -16,16 +15,22 @@ export async function generateMetadata({
 }) {
   const { locale: rawLocale } = await params;
   const locale: Locale = rawLocale === 'hi' ? 'hi' : 'en';
-  const category = CATEGORIES_DATA.pillows;
 
   return buildLocalizedMetadata({
     locale,
     pathSegment: 'products/pillows',
     title:
       locale === 'hi'
-        ? 'आरामदायक तकिए | डायमंड फाइबर रतलाम'
-        : 'Bedding Pillows (Everyday Support) | Diamond Fibre Ratlam',
-    description: category.overview[locale],
+        ? 'तकिया निर्माता रतलाम | थोक व रिटेल बेडिंग पिलो | डायमंड फाइबर'
+        : 'Pillow Manufacturer in Ratlam | Wholesale & Retail Bedding | Diamond Fibre',
+    description:
+      locale === 'hi'
+        ? 'रतलाम (मध्य प्रदेश) में निर्मित लचीले माइक्रोफाइबर और पॉली-फिल सपोर्ट तकिए। सिंगल स्लीव और 4-पैक थोक बंडल में उपलब्ध। होटल व रिटेल आपूर्ति।'
+        : 'Resilient microfibre and conjugated hollow-fill sleeping pillows manufactured in Ratlam, Madhya Pradesh. Available in retail sleeves and 4-pack commercial bundles.',
+    ogImage: {
+      url: '/images/retouched/pillows/hero-pillow-retail-floral.webp',
+      alt: locale === 'hi' ? 'डायमंड फाइबर पिलो संग्रह' : 'Diamond Fibre Sleeping Pillows',
+    },
   });
 }
 
@@ -37,6 +42,39 @@ export default async function PillowsPage({
   const { locale: rawLocale } = await params;
   const locale: Locale = rawLocale === 'hi' ? 'hi' : 'en';
   const category = CATEGORIES_DATA.pillows;
+  const baseUrl = getBaseUrl();
+
+  const breadcrumbsJsonLd = buildBreadcrumbJsonLd(baseUrl, locale, [
+    {
+      name: locale === 'hi' ? 'उत्पाद' : 'Products',
+      pathSegment: 'products',
+    },
+    {
+      name: locale === 'hi' ? 'तकिए (पिलो)' : 'Bedding Pillows',
+      pathSegment: 'products/pillows',
+    },
+  ]);
+
+  const collectionJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name:
+      locale === 'hi'
+        ? 'आरामदायक तकिए संग्रह | डायमंड फाइबर रतलाम'
+        : 'Comfort Bedding Pillows Collection | Diamond Fibre Ratlam',
+    description: category.overview[locale],
+    url: `${baseUrl}/${locale}/products/pillows`,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: category.representativeImages.map((img, idx) => ({
+        '@type': 'ListItem',
+        position: idx + 1,
+        name: img.caption ? img.caption[locale] : img.alt[locale],
+        image: `${baseUrl}${img.src}`,
+      })),
+    },
+  };
+
   const images = category.representativeImages;
 
   const img0 = images[0];
@@ -46,23 +84,32 @@ export default async function PillowsPage({
   const img4 = images[4];
 
   return (
-    <div className="py-10 md:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full flex flex-col gap-12 sm:gap-16">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
+      />
+      <div className="py-8 sm:py-10 md:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full flex flex-col gap-10 sm:gap-12 md:gap-16">
       {/* 1. Intimate & Soft Hero Layout */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
         <div className="lg:col-span-6 flex flex-col gap-5">
           <FadeIn direction="up">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Badge variant="accent">
                 {category.shortTag[locale]}
               </Badge>
               <span className="text-xs uppercase tracking-widest font-mono text-[var(--color-carbon-500)]">
-                {locale === 'hi' ? 'दैनिक आराम' : 'Intimate Support'}
+                {locale === 'hi' ? 'रतलाम फैक्टरी उत्पादन' : 'Ratlam Factory Manufacturing'}
               </span>
             </div>
           </FadeIn>
 
           <FadeIn direction="up" delay={0.1}>
-            <h1 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl text-[var(--color-carbon-900)] tracking-tight leading-[1.15]">
+            <h1 className="font-display font-semibold text-3xl sm:text-4xl md:text-5xl text-[var(--color-carbon-900)] tracking-tight leading-[1.15] text-balance">
               {category.name[locale]}
             </h1>
             <p className="text-base sm:text-lg font-medium text-[var(--color-terracotta-600)] mt-2">
@@ -79,27 +126,21 @@ export default async function PillowsPage({
           {/* Intimate Sleep & Hygiene Highlights */}
           <FadeIn direction="up" delay={0.3}>
             <div className="grid grid-cols-2 gap-3 py-3 border-y border-[var(--color-sand-300)]">
-              <div className="flex items-start gap-2">
-                <Shield className="w-4 h-4 text-[var(--color-terracotta-600)] shrink-0 mt-0.5" />
-                <div className="text-xs">
-                  <span className="font-semibold block text-[var(--color-carbon-900)]">
-                    {locale === 'hi' ? 'सुरक्षित सील पैकिंग' : 'Dust-Sealed Pack'}
-                  </span>
-                  <span className="text-[var(--color-carbon-500)]">
-                    {locale === 'hi' ? 'स्वच्छ व तैयार' : 'Hygienic protective sleeve'}
-                  </span>
-                </div>
+              <div className="flex flex-col">
+                <span className="font-semibold block text-xs text-[var(--color-carbon-900)]">
+                  {locale === 'hi' ? 'सुरक्षित सील पैकिंग' : 'Dust-Sealed Pack'}
+                </span>
+                <span className="text-xs text-[var(--color-carbon-500)] mt-0.5">
+                  {locale === 'hi' ? 'स्वच्छ व तैयार' : 'Hygienic protective sleeve'}
+                </span>
               </div>
-              <div className="flex items-start gap-2">
-                <PackageCheck className="w-4 h-4 text-[var(--color-terracotta-600)] shrink-0 mt-0.5" />
-                <div className="text-xs">
-                  <span className="font-semibold block text-[var(--color-carbon-900)]">
-                    {locale === 'hi' ? 'सिंगल व 4-पैक बंडल' : 'Single & 4-Packs'}
-                  </span>
-                  <span className="text-[var(--color-carbon-500)]">
-                    {locale === 'hi' ? 'खुदरा व थोक दोनों' : 'Retail & bulk options'}
-                  </span>
-                </div>
+              <div className="flex flex-col">
+                <span className="font-semibold block text-xs text-[var(--color-carbon-900)]">
+                  {locale === 'hi' ? 'सिंगल व 4-पैक बंडल' : 'Single & 4-Packs'}
+                </span>
+                <span className="text-xs text-[var(--color-carbon-500)] mt-0.5">
+                  {locale === 'hi' ? 'खुदरा व थोक दोनों' : 'Retail & bulk options'}
+                </span>
               </div>
             </div>
           </FadeIn>
@@ -110,14 +151,14 @@ export default async function PillowsPage({
                 href={buildWhatsAppLink(category.whatsappPrefill[locale])}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-[#25D366] text-white hover:bg-[#1EBE5D] font-bold text-sm px-6 py-3.5 rounded-full shadow-sm hover:shadow transition-all min-h-[48px]"
+                className="inline-flex items-center gap-2.5 bg-[var(--color-carbon-900)] text-white hover:bg-[var(--color-carbon-800)] border border-[var(--color-carbon-800)] active:scale-[1.02] press-scale duration-150 ease-out motion-reduce:transform-none font-semibold text-sm px-6 py-3.5 rounded-xl shadow-sm hover:shadow transition-all min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-terracotta-500)]"
               >
-                <MessageCircle className="w-5 h-5" />
+                <MessageCircle className="w-5 h-5 text-[#25D366] shrink-0" />
                 <span>{locale === 'hi' ? 'व्हाट्सएप पूछताछ' : 'Enquire on WhatsApp'}</span>
               </a>
               <Link
                 href={`/${locale}/wholesale`}
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-carbon-700)] hover:text-[var(--color-terracotta-600)] transition-colors py-2"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-carbon-700)] hover:text-[var(--color-terracotta-600)] active:scale-[1.02] press-scale duration-150 ease-out motion-reduce:transform-none transition-all py-2"
               >
                 <span>{locale === 'hi' ? 'दुकानदार बंडल सप्लाई' : 'Stockist / 4-Pack Bundles'}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -128,7 +169,7 @@ export default async function PillowsPage({
 
         {/* Intimate Hero Presentation: Soft Retail Sleeve + Botanical Pair */}
         <div className="lg:col-span-6 relative">
-          <FadeIn direction="left" duration={0.8}>
+          <FadeIn direction="up" duration={0.8}>
             <div className="relative rounded-3xl overflow-hidden bg-[var(--color-sand-200)] shadow-xl aspect-4/3 sm:aspect-5/4">
               {img0 && (
                 <>
@@ -137,7 +178,7 @@ export default async function PillowsPage({
                     alt={img0.alt[locale]}
                     fill
                     priority
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    sizes="(max-width: 768px) 100vw, 600px"
                     className="object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-carbon-950)]/50 via-transparent to-transparent pointer-events-none" />
@@ -191,7 +232,7 @@ export default async function PillowsPage({
             <span className="text-xs uppercase font-mono tracking-widest text-[var(--color-terracotta-600)] font-semibold">
               {locale === 'hi' ? 'पैकेजिंग व बंडल विकल्प' : 'Packaging & Supply Formats'}
             </span>
-            <h2 className="font-display font-bold text-2xl sm:text-3xl text-[var(--color-carbon-900)] mt-1">
+            <h2 className="font-display font-semibold text-2xl sm:text-3xl text-[var(--color-carbon-900)] mt-1">
               {locale === 'hi' ? 'खुदरा सिंगल पैक और कमर्शियल 4-पैक बंडल' : 'Retail Sleeves & Commercial 4-Packs'}
             </h2>
             <p className="text-xs sm:text-sm text-[var(--color-carbon-600)] mt-2 leading-relaxed">
@@ -200,8 +241,8 @@ export default async function PillowsPage({
                 : 'Diamond Fibre pillows are supplied either as sealed single units for retail shelves or strapped into compact 4-pillow bundles for commercial traders and stockists.'}
             </p>
           </div>
-          <div className="shrink-0 flex items-center gap-2 text-xs font-medium text-[var(--color-carbon-700)] bg-white px-3 py-1.5 rounded-full border border-[var(--color-sand-300)]">
-            <CheckCircle2 className="w-4 h-4 text-[#25D366]" />
+          <div className="w-fit self-start sm:self-auto shrink-0 flex items-center gap-2 text-xs font-medium text-[var(--color-carbon-700)] bg-white px-3.5 py-1.5 rounded-full border border-[var(--color-sand-300)]">
+            <span className="w-2 h-2 rounded-full bg-[#25D366]" aria-hidden="true" />
             <span>{locale === 'hi' ? 'प्रामाणिक फैक्ट्री पैकेजिंग' : 'Authentic Packaged Assets'}</span>
           </div>
         </div>
@@ -211,18 +252,15 @@ export default async function PillowsPage({
           {/* Format 1: Retail Single */}
           {img2 && (
             <div className="flex flex-col gap-4 p-6 rounded-2xl bg-white border border-[var(--color-sand-300)] shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-terracotta-700)]">
-                  {locale === 'hi' ? 'प्रारूप 01: खुदरा सिंगल स्लीव' : 'Format 01: Retail Protective Sleeve'}
-                </span>
-                <Sparkles className="w-4 h-4 text-[var(--color-terracotta-600)]" />
-              </div>
+              <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-terracotta-700)]">
+                {locale === 'hi' ? 'प्रारूप 01: खुदरा सिंगल स्लीव' : 'Format 01: Retail Protective Sleeve'}
+              </span>
               <div className="relative aspect-16/10 rounded-xl overflow-hidden bg-[var(--color-sand-200)]">
                 <Image
                   src={img2.src}
                   alt={img2.alt[locale]}
                   fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  sizes="(max-width: 768px) 100vw, 600px"
                   className="object-cover"
                 />
               </div>
@@ -237,18 +275,15 @@ export default async function PillowsPage({
           {/* Format 2: Commercial 4-Pack Bundle */}
           {img4 && (
             <div className="flex flex-col gap-4 p-6 rounded-2xl bg-white border border-[var(--color-sand-300)] shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-terracotta-700)]">
-                  {locale === 'hi' ? 'प्रारूप 02: कमर्शियल 4-पैक बंडल' : 'Format 02: Strapped 4-Pack Bundle'}
-                </span>
-                <PackageCheck className="w-4 h-4 text-[var(--color-terracotta-600)]" />
-              </div>
+              <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-terracotta-700)]">
+                {locale === 'hi' ? 'प्रारूप 02: कमर्शियल 4-पैक बंडल' : 'Format 02: Strapped 4-Pack Bundle'}
+              </span>
               <div className="relative aspect-16/10 rounded-xl overflow-hidden bg-[var(--color-sand-200)]">
                 <Image
                   src={img4.src}
                   alt={img4.alt[locale]}
                   fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  sizes="(max-width: 768px) 100vw, 600px"
                   className="object-cover"
                 />
               </div>
@@ -295,7 +330,7 @@ export default async function PillowsPage({
         <span className="text-xs font-mono uppercase tracking-widest text-[var(--color-carbon-500)] font-semibold">
           {locale === 'hi' ? 'उत्पादन विवरण' : 'Production Parameters'}
         </span>
-        <h3 className="font-display font-bold text-lg text-[var(--color-carbon-900)]">
+        <h3 className="font-display font-medium text-lg text-[var(--color-carbon-900)]">
           {locale === 'hi' ? 'साइज, कवर व भराई की पुष्टि' : 'Filling Options & Dimensions'}
         </h3>
         <p className="text-xs sm:text-sm text-[var(--color-carbon-600)] leading-relaxed">
@@ -303,13 +338,145 @@ export default async function PillowsPage({
         </p>
       </section>
 
-      {/* 5. Editorial Enquiry / Wholesale Conversion Banner */}
+      {/* 5. EDUCATIONAL PILLOW GUIDE & BULK SUPPLY DETAILS */}
+      <section className="bg-[var(--color-sand-100)] border border-[var(--color-sand-300)] rounded-3xl p-6 sm:p-10 flex flex-col gap-8">
+        <div className="flex flex-col gap-2 max-w-2xl">
+          <span className="text-xs font-mono uppercase tracking-widest text-[var(--color-carbon-500)] font-semibold">
+            {locale === 'hi' ? 'तकिया निर्माण व भराव' : 'Manufacturing & Filling Standard'}
+          </span>
+          <h2 className="font-display font-semibold text-2xl sm:text-3xl text-[var(--color-carbon-900)]">
+            {locale === 'hi'
+              ? 'सपोर्ट तकिए और रीसेलर्स के लिए थोक पैक'
+              : 'Everyday Neck Support & Wholesale Pillow Bundles'}
+          </h2>
+          <p className="text-sm text-[var(--color-carbon-600)] leading-relaxed">
+            {locale === 'hi'
+              ? 'डायमंड फाइबर रतलाम में हम लचीले पॉली-फिल एवं माइक्रोफाइबर कोर से तकिए तैयार करते हैं, जो लंबे समय तक आकार बनाए रखते हैं।'
+              : 'Our Ratlam production uses high-loft conjugated hollow microfibre designed to resist clumping and maintain balanced neck alignment.'}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white p-6 rounded-2xl border border-[var(--color-sand-300)] shadow-sm flex flex-col gap-3">
+            <h3 className="text-[var(--color-terracotta-600)] font-semibold text-base">
+              {locale === 'hi' ? 'घरेलू रिटेल सिंगल स्लीव्स' : 'Retail Single Sleeves'}
+            </h3>
+            <p className="text-xs sm:text-sm text-[var(--color-carbon-600)] leading-relaxed">
+              {locale === 'hi'
+                ? 'व्यक्तिगत ग्राहकों और बेडिंग दुकानों के लिए अलग-अलग पॉलिथीन सुरक्षा स्लीव्स में पैक किए गए तकिए।'
+                : 'Individually sleeved for retail display with breathable outer shells, perfect for walk-in shoppers and home linen stores.'}
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl border border-[var(--color-sand-300)] shadow-sm flex flex-col gap-3">
+            <h3 className="text-[var(--color-terracotta-600)] font-semibold text-base">
+              {locale === 'hi' ? '4-पैक थोक व वाणिज्यिक बंडल' : '4-Pack Commercial Lots'}
+            </h3>
+            <p className="text-xs sm:text-sm text-[var(--color-carbon-600)] leading-relaxed">
+              {locale === 'hi'
+                ? 'होटल, लॉज, गेस्ट हाउस और बड़े रीसेलर्स के लिए लागत-प्रभावी 4-पीस कॉम्पैक्ट मास्टर बंडल।'
+                : 'Cost-effective multi-pack bundles packaged for easy transit and freight distribution across Madhya Pradesh, Rajasthan, and Gujarat.'}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. EXPLORE OTHER BEDDING CATEGORIES */}
+      <section className="flex flex-col gap-6">
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-mono uppercase tracking-widest text-[var(--color-carbon-500)] font-semibold">
+              {locale === 'hi' ? 'सम्बंधित बेडिंग श्रेणियां' : 'Complete Your Bedding'}
+            </span>
+            <h2 className="font-display font-semibold text-xl sm:text-2xl text-[var(--color-carbon-900)]">
+              {locale === 'hi' ? 'अन्य उत्पाद संग्रह देखें' : 'Explore Related Bedding Lines'}
+            </h2>
+          </div>
+          <Link
+            href={`/${locale}/products`}
+            className="text-xs sm:text-sm font-semibold text-[var(--color-terracotta-600)] hover:underline inline-flex items-center gap-1"
+          >
+            <span>{locale === 'hi' ? 'सभी देखें' : 'View all'}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Link
+            href={`/${locale}/products/mattresses`}
+            className="group p-5 rounded-2xl bg-white border border-[var(--color-sand-300)] hover:border-[var(--color-terracotta-400)] transition-all hover:shadow-md flex flex-col justify-between gap-3"
+          >
+            <div>
+              <span className="text-[11px] font-mono text-[var(--color-carbon-500)] uppercase tracking-wider">
+                {locale === 'hi' ? 'श्रेणी 01' : 'Category 01'}
+              </span>
+              <h3 className="font-display font-medium text-base text-[var(--color-carbon-900)] group-hover:text-[var(--color-terracotta-600)] transition-colors mt-1">
+                {locale === 'hi' ? 'गद्दे व फ्लोर गद्दे' : 'Mattresses & Gaddas'}
+              </h3>
+              <p className="text-xs text-[var(--color-carbon-500)] mt-1 line-clamp-2">
+                {locale === 'hi'
+                  ? 'टफ्टेड फ्लोर गद्दे और बॉक्स्ड-एज कॉट मैट्रेस।'
+                  : 'Quilted floor gaddas and framed boxed-edge mattresses.'}
+              </p>
+            </div>
+            <span className="text-xs font-semibold text-[var(--color-terracotta-600)] inline-flex items-center gap-1">
+              {locale === 'hi' ? 'गद्दे देखें' : 'View mattresses'} &rarr;
+            </span>
+          </Link>
+
+          <Link
+            href={`/${locale}/products/razais`}
+            className="group p-5 rounded-2xl bg-white border border-[var(--color-sand-300)] hover:border-[var(--color-terracotta-400)] transition-all hover:shadow-md flex flex-col justify-between gap-3"
+          >
+            <div>
+              <span className="text-[11px] font-mono text-[var(--color-carbon-500)] uppercase tracking-wider">
+                {locale === 'hi' ? 'श्रेणी 03' : 'Category 03'}
+              </span>
+              <h3 className="font-display font-medium text-base text-[var(--color-carbon-900)] group-hover:text-[var(--color-terracotta-600)] transition-colors mt-1">
+                {locale === 'hi' ? 'पारंपरिक रज़ाइयां' : 'Quilted Razais'}
+              </h3>
+              <p className="text-xs text-[var(--color-carbon-500)] mt-1 line-clamp-2">
+                {locale === 'hi'
+                  ? 'सर्दियों के लिए गर्म व हल्की फ्लोरल रज़ाइयां।'
+                  : 'Warm, lightweight printed & microfibre winter quilts.'}
+              </p>
+            </div>
+            <span className="text-xs font-semibold text-[var(--color-terracotta-600)] inline-flex items-center gap-1">
+              {locale === 'hi' ? 'रज़ाइयां देखें' : 'View razais'} &rarr;
+            </span>
+          </Link>
+
+          <Link
+            href={`/${locale}/products/blankets`}
+            className="group p-5 rounded-2xl bg-white border border-[var(--color-sand-300)] hover:border-[var(--color-terracotta-400)] transition-all hover:shadow-md flex flex-col justify-between gap-3"
+          >
+            <div>
+              <span className="text-[11px] font-mono text-[var(--color-carbon-500)] uppercase tracking-wider">
+                {locale === 'hi' ? 'श्रेणी 04' : 'Category 04'}
+              </span>
+              <h3 className="font-display font-medium text-base text-[var(--color-carbon-900)] group-hover:text-[var(--color-terracotta-600)] transition-colors mt-1">
+                {locale === 'hi' ? 'मुलायम कंबल' : 'Mink & Fleece Blankets'}
+              </h3>
+              <p className="text-xs text-[var(--color-carbon-500)] mt-1 line-clamp-2">
+                {locale === 'hi'
+                  ? 'शानदार मिंक और पोलर फ्लीस कंबल।'
+                  : 'Single & double bed embossed plush blankets.'}
+              </p>
+            </div>
+            <span className="text-xs font-semibold text-[var(--color-terracotta-600)] inline-flex items-center gap-1">
+              {locale === 'hi' ? 'कंबल देखें' : 'View blankets'} &rarr;
+            </span>
+          </Link>
+        </div>
+      </section>
+
+      {/* 7. Editorial Enquiry / Wholesale Conversion Banner */}
       <section className="p-8 sm:p-10 rounded-3xl bg-[var(--color-carbon-900)] text-white flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
         <div className="flex flex-col gap-2 max-w-xl">
           <span className="text-xs font-mono uppercase tracking-widest text-[var(--color-terracotta-400)] font-semibold">
             {locale === 'hi' ? 'सीधा संपर्क' : 'Direct Factory Desk'}
           </span>
-          <h3 className="font-display font-bold text-2xl sm:text-3xl">
+          <h3 className="font-display font-semibold text-2xl sm:text-3xl">
             {locale === 'hi'
               ? 'तकियों के विकल्प, पैक व कीमतों के लिए पूछें'
               : 'Enquire About Pillow Options & Pack Counts'}
@@ -326,14 +493,14 @@ export default async function PillowsPage({
             href={buildWhatsAppLink(category.whatsappPrefill[locale])}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#25D366] text-white hover:bg-[#1EBE5D] font-bold text-sm px-7 py-3.5 rounded-full shadow-md hover:shadow-lg transition-all min-h-[48px]"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white text-[var(--color-carbon-900)] hover:bg-[var(--color-warm-ivory-100)] border border-white active:scale-[1.02] press-scale duration-150 ease-out motion-reduce:transform-none font-semibold text-sm px-7 py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-terracotta-500)]"
           >
-            <MessageCircle className="w-5 h-5" />
+            <MessageCircle className="w-5 h-5 text-[#25D366] shrink-0" />
             <span>{locale === 'hi' ? 'व्हाट्सएप पूछताछ' : 'Enquire on WhatsApp'}</span>
           </a>
           <Link
             href={`/${locale}/wholesale`}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-sm font-semibold px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/15 text-white transition-colors border border-white/20 min-h-[48px]"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-sm font-semibold px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/15 text-white active:scale-[1.02] press-scale duration-150 ease-out motion-reduce:transform-none transition-all border border-white/20 min-h-[48px]"
           >
             <span>{locale === 'hi' ? 'थोक व रीसेलर्स' : 'Wholesale & Resellers'}</span>
             <ArrowRight className="w-4 h-4" />
@@ -341,5 +508,6 @@ export default async function PillowsPage({
         </div>
       </section>
     </div>
+    </>
   );
 }

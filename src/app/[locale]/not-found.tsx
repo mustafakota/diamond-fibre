@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ArrowLeft, Home } from 'lucide-react';
@@ -12,15 +11,15 @@ export default function NotFound() {
   return (
     <div className="py-20 px-4 max-w-2xl mx-auto text-center flex flex-col items-center gap-6">
       <span className="font-mono text-sm font-bold text-[var(--color-terracotta-600)] tracking-widest uppercase">
-        404 — {isHindi ? 'पृष्ठ नहीं मिला' : 'Page Not Found'}
+        404: {isHindi ? 'पृष्ठ नहीं मिला' : 'Page Not Found'}
       </span>
-      <h1 className="font-display font-bold text-3xl sm:text-4xl text-[var(--color-carbon-900)]">
+      <h1 className="font-display font-semibold text-3xl sm:text-4xl text-[var(--color-carbon-900)]">
         {isHindi ? 'अनुरोधित पृष्ठ उपलब्ध नहीं है।' : 'The requested page does not exist.'}
       </h1>
       <p className="text-sm text-[var(--color-carbon-600)] max-w-md leading-relaxed">
         {isHindi
-          ? 'यह पृष्ठ हटा दिया गया है या अनुपलब्ध है। आप हमारे होमपेज पर लौट सकते हैं या हमारी पांच बेडिंग श्रेणियां देख सकते हैं।'
-          : 'The page you are looking for may have been moved or is unavailable. You can return to our homepage or browse our five bedding product categories.'}
+          ? 'यह पृष्ठ हटा दिया गया है या अनुपलब्ध है। आप हमारे होमपेज पर लौट सकते हैं या हमारी चार मुख्य बेडिंग श्रेणियां देख सकते हैं।'
+          : 'The page you are looking for may have been moved or is unavailable. You can return to our homepage or browse our four core bedding categories.'}
       </p>
 
       <div className="flex flex-wrap items-center justify-center gap-3 pt-2">

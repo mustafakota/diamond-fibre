@@ -15,8 +15,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'contact',
   ];
 
-  const currentDate = new Date().toISOString();
-
   const entries: MetadataRoute.Sitemap = [];
 
   for (const route of routes) {
@@ -24,33 +22,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const enUrl = `${baseUrl}/en${cleanRoute}`;
     const hiUrl = `${baseUrl}/hi${cleanRoute}`;
 
+    const alternateLanguages = {
+      'en-IN': enUrl,
+      'hi-IN': hiUrl,
+      en: enUrl,
+      hi: hiUrl,
+      'x-default': enUrl,
+    };
+
     // English Entry
     entries.push({
       url: enUrl,
-      lastModified: currentDate,
       changeFrequency: route === '' ? 'daily' : 'weekly',
       priority: route === '' ? 1.0 : route.startsWith('products') ? 0.8 : 0.6,
       alternates: {
-        languages: {
-          en: enUrl,
-          hi: hiUrl,
-          'x-default': enUrl,
-        },
+        languages: alternateLanguages,
       },
     });
 
     // Hindi Entry
     entries.push({
       url: hiUrl,
-      lastModified: currentDate,
       changeFrequency: route === '' ? 'daily' : 'weekly',
       priority: route === '' ? 1.0 : route.startsWith('products') ? 0.8 : 0.6,
       alternates: {
-        languages: {
-          en: enUrl,
-          hi: hiUrl,
-          'x-default': enUrl,
-        },
+        languages: alternateLanguages,
       },
     });
   }

@@ -130,11 +130,10 @@ test('Wholesale Submission: valid payload invokes mocked sender exactly once wit
 test('Wholesale Submission: rejects invalid inputs without invoking sender', async () => {
   const testCases = [
     { payload: { ...validPayload, fullName: '' }, errorSubstr: 'contact name' },
-    { payload: { ...validPayload, businessName: ' ' }, errorSubstr: 'business name' },
+    { payload: { ...validPayload, fullName: 'a' }, errorSubstr: 'contact name' },
     { payload: { ...validPayload, mobileNumber: '12345' }, errorSubstr: 'mobile number' },
+    { payload: { ...validPayload, mobileNumber: 'abcdefghij' }, errorSubstr: 'mobile number' },
     { payload: { ...validPayload, categories: [] }, errorSubstr: 'category' },
-    { payload: { ...validPayload, estimatedQuantity: '' }, errorSubstr: 'quantity' },
-    { payload: { ...validPayload, destinationLocation: ' ' }, errorSubstr: 'Destination' },
   ];
 
   for (const tc of testCases) {
@@ -147,6 +146,26 @@ test('Wholesale Submission: rejects invalid inputs without invoking sender', asy
     assert.ok(res.body.error.toLowerCase().includes(tc.errorSubstr.toLowerCase()));
     assert.equal(mockClient.calls.length, 0, 'Sender must not be invoked for invalid inputs');
   }
+});
+
+test('Wholesale Submission: allows optional business name, estimated quantity, and destination location', async () => {
+  const minimalPayload = {
+    fullName: 'Rajesh Sharma',
+    mobileNumber: '9876543210',
+    preferredContact: 'whatsapp',
+    categories: ['mattresses'],
+  };
+
+  const mockClient = createMockResendClient();
+  const res = await handleWholesaleSubmission(minimalPayload, {
+    env: validEnv,
+    resendClient: mockClient,
+  });
+
+  assert.equal(res.status, 200);
+  assert.equal(res.body.success, true);
+  assert.equal(res.body.accepted, true);
+  assert.equal(mockClient.calls.length, 1);
 });
 
 test('Wholesale Submission: silently discards honeypot bot payloads without sending email', async () => {

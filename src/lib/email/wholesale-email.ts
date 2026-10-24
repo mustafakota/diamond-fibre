@@ -2,12 +2,13 @@ import { Resend } from 'resend';
 
 export interface WholesaleEmailPayload {
   fullName: string;
-  businessName: string;
+  businessName?: string;
   mobileNumber: string;
   preferredContact: 'whatsapp' | 'phone';
   categories: string[];
-  estimatedQuantity: string;
-  destinationLocation: string;
+  estimatedQuantity?: string;
+  destinationLocation?: string;
+  purchaseType?: string;
   customSizes?: boolean;
   privateLabel?: boolean;
   notes?: string;
@@ -150,11 +151,11 @@ export function buildWholesaleEmailText(
   timestamp = new Date().toISOString()
 ): string {
   const categoriesText = formatCategoryList(payload.categories);
-  const safeBusiness = payload.businessName.replace(/[\r\n]+/g, ' ').trim();
+  const safeBusiness = payload.businessName?.replace(/[\r\n]+/g, ' ').trim() || '(Not provided)';
   const safeName = payload.fullName.replace(/[\r\n]+/g, ' ').trim();
   const safePhone = payload.mobileNumber.replace(/[\r\n]+/g, ' ').trim();
-  const safeLocation = payload.destinationLocation.replace(/[\r\n]+/g, ' ').trim();
-  const safeQuantity = payload.estimatedQuantity.replace(/[\r\n]+/g, ' ').trim();
+  const safeLocation = payload.destinationLocation?.replace(/[\r\n]+/g, ' ').trim() || 'To be confirmed';
+  const safeQuantity = payload.estimatedQuantity?.replace(/[\r\n]+/g, ' ').trim() || 'Not specified';
   const safeNotes = payload.notes?.trim() || '(None provided)';
 
   return `NEW DIAMOND FIBRE WHOLESALE ENQUIRY
@@ -168,9 +169,6 @@ Preferred Contact:   ${payload.preferredContact === 'phone' ? 'Phone Call' : 'Wh
 Selected Categories: ${categoriesText}
 Estimated Quantity:  ${safeQuantity}
 Delivery Location:   ${safeLocation}
-
-Custom Sizes:        ${payload.customSizes ? 'Yes, requested' : 'Standard catalog dimensions'}
-Private Labeling:    ${payload.privateLabel ? 'Yes, requested' : 'Standard Diamond Fibre branding'}
 
 Additional Notes:
 ${safeNotes}
@@ -190,10 +188,10 @@ export function buildWholesaleEmailHtml(
 ): string {
   const categoriesText = escapeHtml(formatCategoryList(payload.categories));
   const safeName = escapeHtml(payload.fullName.trim());
-  const safeBusiness = escapeHtml(payload.businessName.trim());
+  const safeBusiness = escapeHtml(payload.businessName?.trim() || '(Not provided)');
   const safePhone = escapeHtml(payload.mobileNumber.trim());
-  const safeLocation = escapeHtml(payload.destinationLocation.trim());
-  const safeQuantity = escapeHtml(payload.estimatedQuantity.trim());
+  const safeLocation = escapeHtml(payload.destinationLocation?.trim() || 'To be confirmed');
+  const safeQuantity = escapeHtml(payload.estimatedQuantity?.trim() || 'Not specified');
   const safeNotes = payload.notes?.trim()
     ? escapeHtml(payload.notes.trim()).replace(/\n/g, '<br/>')
     : '<em>(None provided)</em>';
@@ -232,7 +230,7 @@ export function buildWholesaleEmailHtml(
           </tr>
           <tr style="border-bottom: 1px solid #f3efe7;">
             <td style="padding: 10px 0; font-weight: 600; color: #4a4b44;">Preferred Contact:</td>
-            <td style="padding: 10px 0; color: #bf4d28; font-weight: 600;">${safeContactPref}</td>
+            <td style="padding: 10px 0; color: #1a1b17; font-weight: 500;">${safeContactPref}</td>
           </tr>
           <tr style="border-bottom: 1px solid #f3efe7;">
             <td style="padding: 10px 0; font-weight: 600; color: #4a4b44;">Categories:</td>
@@ -245,14 +243,6 @@ export function buildWholesaleEmailHtml(
           <tr style="border-bottom: 1px solid #f3efe7;">
             <td style="padding: 10px 0; font-weight: 600; color: #4a4b44;">Destination City & State:</td>
             <td style="padding: 10px 0; color: #1a1b17;">${safeLocation}</td>
-          </tr>
-          <tr style="border-bottom: 1px solid #f3efe7;">
-            <td style="padding: 10px 0; font-weight: 600; color: #4a4b44;">Custom Sizes:</td>
-            <td style="padding: 10px 0; color: #1a1b17;">${payload.customSizes ? '✓ Yes, requested' : 'Standard catalog dimensions'}</td>
-          </tr>
-          <tr style="border-bottom: 1px solid #f3efe7;">
-            <td style="padding: 10px 0; font-weight: 600; color: #4a4b44;">Private Label:</td>
-            <td style="padding: 10px 0; color: #1a1b17;">${payload.privateLabel ? '✓ Yes, requested' : 'Standard Diamond Fibre branding'}</td>
           </tr>
           <tr>
             <td style="padding: 12px 0 6px; font-weight: 600; color: #4a4b44; vertical-align: top;">Additional Notes:</td>
@@ -309,7 +299,7 @@ export async function sendWholesaleEmail(
   }
 
   const timestamp = options.now ? options.now() : new Date().toISOString();
-  const safeBusiness = payload.businessName.replace(/[\r\n]+/g, ' ').trim();
+  const safeBusiness = payload.businessName ? payload.businessName.replace(/[\r\n]+/g, ' ').trim() : '';
   const subject = safeBusiness
     ? `New Diamond Fibre Wholesale Enquiry - ${safeBusiness}`
     : 'New Diamond Fibre Wholesale Enquiry';
@@ -424,9 +414,6 @@ export async function handleWholesaleSubmission(
   if (!body.fullName || body.fullName.trim().length < 2) {
     return { status: 400, body: { error: 'Valid contact name is required' } };
   }
-  if (!body.businessName || body.businessName.trim().length < 2) {
-    return { status: 400, body: { error: 'Valid business name is required' } };
-  }
 
   const cleanPhone = (body.mobileNumber || '').replace(/\D/g, '');
   if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
@@ -440,20 +427,6 @@ export async function handleWholesaleSubmission(
     return {
       status: 400,
       body: { error: 'At least one product category must be selected' },
-    };
-  }
-
-  if (!body.estimatedQuantity || body.estimatedQuantity.trim().length === 0) {
-    return {
-      status: 400,
-      body: { error: 'Estimated quantity requirement is required' },
-    };
-  }
-
-  if (!body.destinationLocation || body.destinationLocation.trim().length === 0) {
-    return {
-      status: 400,
-      body: { error: 'Destination city and state is required' },
     };
   }
 

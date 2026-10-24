@@ -1,4 +1,3 @@
-import React from 'react';
 import Link from 'next/link';
 import { Home, Compass } from 'lucide-react';
 
@@ -7,10 +6,10 @@ export default function RootNotFound() {
     <div className="min-h-screen bg-[var(--color-warm-ivory-200)] flex items-center justify-center p-6">
       <div className="max-w-lg w-full bg-[var(--color-warm-ivory-100)] border border-[var(--color-sand-300)] rounded-3xl p-8 sm:p-10 shadow-lg text-center flex flex-col items-center gap-6">
         <span className="font-mono text-xs font-bold text-[var(--color-terracotta-600)] tracking-widest uppercase">
-          404 — Page Not Found / पृष्ठ नहीं मिला
+          404: Page Not Found / पृष्ठ नहीं मिला
         </span>
 
-        <h1 className="font-display font-bold text-2xl sm:text-3xl text-[var(--color-carbon-900)]">
+        <h1 className="font-display font-semibold text-2xl sm:text-3xl text-[var(--color-carbon-900)]">
           Diamond Fibre
         </h1>
 

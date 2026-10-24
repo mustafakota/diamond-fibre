@@ -14,8 +14,8 @@ export interface StaggerContainerProps {
 
 export const StaggerContainer: React.FC<StaggerContainerProps> = ({
   children,
-  staggerDelay = 0.1,
-  initialDelay = 0.05,
+  staggerDelay = 0.06,
+  initialDelay = 0.03,
   className = '',
   viewportOnce = true,
 }) => {
@@ -54,7 +54,7 @@ export const StaggerItem: React.FC<{
   children: React.ReactNode;
   className?: string;
   distance?: number;
-}> = ({ children, className = '', distance = 20 }) => {
+}> = ({ children, className = '', distance = 8 }) => {
   const shouldReduceMotion = useReducedMotion();
   const mounted = useMounted();
 
@@ -68,7 +68,7 @@ export const StaggerItem: React.FC<{
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.5,
+        duration: 0.24,
         ease: [0.21, 0.47, 0.32, 0.98] as [number, number, number, number],
       },
     },

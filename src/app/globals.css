@@ -14,9 +14,10 @@
   --color-success-green: #2d6a4f;
   --color-error-red: #b02a37;
 
-  --font-display: var(--font-space-grotesk), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-manrope), var(--font-inter), system-ui, -apple-system, sans-serif;
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
   --font-hindi: var(--font-noto-devanagari), system-ui, -apple-system, sans-serif;
+  --font-hindi-display: var(--font-noto-devanagari), system-ui, -apple-system, sans-serif;
 
   --shadow-card: 0 4px 20px -2px rgba(34, 35, 31, 0.05);
   --shadow-floating: 0 8px 30px -4px rgba(34, 35, 31, 0.12);
@@ -25,6 +26,61 @@
 :root {
   --background: #f3efe7;
   --foreground: #22231f;
+}
+
+html {
+  scroll-padding-top: 5.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-sand-400) transparent;
+}
+
+/* Premium Slim Scrollbar Polish (Document Root) */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background-color: var(--color-sand-400);
+  border-radius: 9999px;
+  border: 1px solid rgba(34, 35, 31, 0.08);
+  transition: background-color 150ms ease-out, border-color 150ms ease-out;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover {
+  background-color: #e36e48;
+  border-color: rgba(227, 110, 72, 0.25);
+}
+
+html::-webkit-scrollbar-thumb:active,
+body::-webkit-scrollbar-thumb:active {
+  background-color: var(--color-terracotta-500);
+  border-color: rgba(191, 77, 40, 0.3);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+html,
+body {
+  overflow-x: clip;
+  max-width: 100vw;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-terracotta-500);
+  outline-offset: 2px;
 }
 
 body {
@@ -36,11 +92,48 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Suppress Next.js dev portal overlay and indicators */
+nextjs-portal {
+  display: none !important;
+}
+
 /* Adjust line-height and typography balance for Hindi text */
 [lang="hi"] body,
 [lang="hi"] {
   font-family: var(--font-hindi);
   line-height: 1.65;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+/* Hindi Display Headings: Clean, balanced Noto Sans Devanagari typography */
+[lang="hi"] .font-display,
+[lang="hi"] h1.font-display,
+[lang="hi"] h2.font-display,
+[lang="hi"] h3.font-display,
+[lang="hi"] h4.font-display,
+.font-hindi-display {
+  font-family: var(--font-hindi-display);
+  letter-spacing: normal !important;
+}
+
+/* Devanagari shirorekha guard: prevent letter-spacing from breaking top connected strokes */
+[lang="hi"] .tracking-tight,
+[lang="hi"] .tracking-tighter,
+[lang="hi"] .tracking-wide,
+[lang="hi"] .tracking-wider,
+[lang="hi"] .tracking-widest {
+  letter-spacing: normal;
+}
+
+/* English Display Headings: Natural, clean Manrope letter-spacing */
+[lang="en"] .font-display,
+:not([lang="hi"]) .font-display {
+  letter-spacing: -0.01em;
+}
+:not([lang="hi"]) .font-display.tracking-tight,
+[lang="en"] .font-display.tracking-tight {
+  letter-spacing: -0.02em;
 }
 
 /* Ensure mobile touch targets meet 44px minimum */
@@ -61,5 +154,164 @@ textarea {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@keyframes backdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes drawerSlideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes navItemEntrance {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.backdrop-enter {
+  animation: backdropFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.drawer-enter {
+  animation: drawerSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+}
+
+.nav-item-enter {
+  animation: navItemEntrance 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fabricReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fabricAccent {
+  0% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+.animate-fabric-reveal {
+  animation: fabricReveal 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fabric-accent {
+  animation: fabricAccent 0.5s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes subtleFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: subtleFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: pageEnter 0.22s cubic-bezier(0.21, 0.47, 0.32, 0.98) forwards;
+  will-change: opacity, transform;
+}
+
+/* Tactile Click & Press Feedback Primitives */
+.press-scale {
+  transition: transform 150ms cubic-bezier(0.2, 0, 0, 1), background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out, box-shadow 150ms ease-out;
+  transform-origin: center center;
+}
+
+.press-scale:active {
+  transform: scale(1.02);
+}
+
+.press-scale-subtle {
+  transition: transform 150ms cubic-bezier(0.2, 0, 0, 1), background-color 150ms ease-out, border-color 150ms ease-out, box-shadow 150ms ease-out;
+  transform-origin: center center;
+}
+
+.press-scale-subtle:active {
+  transform: scale(1.015);
+}
+
+.press-scale-icon {
+  transition: transform 150ms cubic-bezier(0.2, 0, 0, 1), background-color 150ms ease-out, opacity 150ms ease-out;
+  transform-origin: center center;
+}
+
+.press-scale-icon:active {
+  transform: scale(1.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop-enter,
+  .drawer-enter,
+  .nav-item-enter,
+  .animate-fabric-reveal,
+  .animate-fabric-accent,
+  .animate-fadeIn,
+  .page-enter {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .press-scale,
+  .press-scale-subtle,
+  .press-scale-icon,
+  .press-scale:active,
+  .press-scale-subtle:active,
+  .press-scale-icon:active {
+    transform: none !important;
+  }
+
+  html::-webkit-scrollbar-thumb,
+  body::-webkit-scrollbar-thumb {
+    transition: none !important;
   }
 }

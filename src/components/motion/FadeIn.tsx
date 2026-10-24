@@ -17,9 +17,9 @@ export interface FadeInProps {
 export const FadeIn: React.FC<FadeInProps> = ({
   children,
   delay = 0,
-  duration = 0.5,
+  duration = 0.28,
   direction = 'up',
-  distance = 20,
+  distance = 10,
   className = '',
   viewportOnce = true,
 }) => {
@@ -32,15 +32,20 @@ export const FadeIn: React.FC<FadeInProps> = ({
   }
 
   const getInitialPosition = () => {
+    // On mobile viewports (< 768px), horizontal translations ('left' / 'right')
+    // can cause unexpected horizontal scrolling or awkward layout shifting.
+    // Convert them gracefully to subtle vertical 'up' entrance.
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
     switch (direction) {
       case 'up':
         return { y: distance, x: 0 };
       case 'down':
         return { y: -distance, x: 0 };
       case 'left':
-        return { x: distance, y: 0 };
+        return isMobile ? { y: distance, x: 0 } : { x: distance, y: 0 };
       case 'right':
-        return { x: -distance, y: 0 };
+        return isMobile ? { y: distance, x: 0 } : { x: -distance, y: 0 };
       case 'none':
       default:
         return { x: 0, y: 0 };

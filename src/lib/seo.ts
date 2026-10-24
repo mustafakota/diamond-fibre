@@ -69,16 +69,25 @@ export function getBaseUrl(): string {
   return configuredUrl.replace(/\/+$/, '');
 }
 
+export interface OpenGraphImageConfig {
+  url: string;
+  width?: number;
+  height?: number;
+  alt?: string;
+}
+
 export function buildLocalizedMetadata({
   locale,
   pathSegment,
   title,
   description,
+  ogImage,
 }: {
   locale: Locale;
   pathSegment: string; // e.g. "", "products", "products/mattresses", "wholesale", "our-story", "contact"
   title: string;
   description: string;
+  ogImage?: OpenGraphImageConfig;
 }): Metadata {
   const baseUrl = getBaseUrl();
   const cleanSegment = pathSegment.replace(/^\/+|\/+$/g, '');
@@ -87,12 +96,30 @@ export function buildLocalizedMetadata({
   const hiUrl = cleanSegment ? `${baseUrl}/hi/${cleanSegment}` : `${baseUrl}/hi`;
   const currentCanonical = locale === 'hi' ? hiUrl : enUrl;
 
+  const defaultImage: OpenGraphImageConfig = {
+    url: `${baseUrl}/images/logo/diamond-fibre-logo.png`,
+    width: 1086,
+    height: 362,
+    alt: locale === 'hi' ? 'डायमंड फाइबर रतलाम' : 'Diamond Fibre Ratlam',
+  };
+
+  const resolvedImage = ogImage
+    ? {
+        url: ogImage.url.startsWith('http') ? ogImage.url : `${baseUrl}${ogImage.url.startsWith('/') ? '' : '/'}${ogImage.url}`,
+        width: ogImage.width || 1200,
+        height: ogImage.height || 630,
+        alt: ogImage.alt || title,
+      }
+    : defaultImage;
+
   return {
     title,
     description,
     alternates: {
       canonical: currentCanonical,
       languages: {
+        'en-IN': enUrl,
+        'hi-IN': hiUrl,
         en: enUrl,
         hi: hiUrl,
         'x-default': enUrl,
@@ -105,18 +132,58 @@ export function buildLocalizedMetadata({
       siteName: locale === 'hi' ? 'डायमंड फाइबर' : 'Diamond Fibre',
       locale: locale === 'hi' ? 'hi_IN' : 'en_IN',
       type: 'website',
-      images: [
-        {
-          url: `${baseUrl}/images/logo/diamond-fibre-logo.png`,
-          width: 1086,
-          height: 362,
-          alt: locale === 'hi' ? 'डायमंड फाइबर रतलाम' : 'Diamond Fibre Ratlam',
-        },
-      ],
+      images: [resolvedImage],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [resolvedImage.url],
     },
     robots: {
       index: true,
       follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
+  };
+}
+
+/**
+ * Builds valid BreadcrumbList structured data for rich SERP breadcrumb trails.
+ */
+export function buildBreadcrumbJsonLd(
+  baseUrl: string,
+  locale: Locale,
+  items: Array<{ name: string; pathSegment: string }>
+) {
+  const itemListElement = [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: locale === 'hi' ? 'होम' : 'Home',
+      item: `${baseUrl}/${locale}`,
+    },
+  ];
+
+  items.forEach((item, index) => {
+    const clean = item.pathSegment.replace(/^\/+|\/+$/g, '');
+    itemListElement.push({
+      '@type': 'ListItem',
+      position: index + 2,
+      name: item.name,
+      item: `${baseUrl}/${locale}/${clean}`,
+    });
+  });
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement,
   };
 }

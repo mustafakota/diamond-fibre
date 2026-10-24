@@ -28,16 +28,16 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ currentLocal
   return (
     <div
       role="group"
-      aria-label="Language Switcher"
-      className="inline-flex items-center p-1 rounded-full bg-[var(--color-sand-300)]/50 border border-[var(--color-sand-400)]/60 text-xs font-semibold"
+      aria-label="Language selection"
+      className="inline-flex items-center p-0.5 rounded-lg bg-[var(--color-sand-400)]/40 border border-[var(--color-sand-400)] text-xs font-medium shadow-2xs"
     >
       <Link
         href={getTargetUrl('en')}
         aria-current={currentLocale === 'en' ? 'page' : undefined}
-        className={`px-3 py-1.5 rounded-full min-h-[36px] flex items-center transition-all ${
+        className={`px-2.5 py-1 rounded-[6px] min-h-[32px] sm:min-h-[28px] flex items-center active:scale-[1.02] transition-all duration-150 ease-out motion-reduce:transform-none press-scale focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-terracotta-500)] ${
           currentLocale === 'en'
-            ? 'bg-white text-[var(--color-carbon-900)] shadow-xs font-bold'
-            : 'text-[var(--color-carbon-600)] hover:text-[var(--color-carbon-900)]'
+            ? 'bg-[var(--color-warm-ivory-100)] text-[var(--color-carbon-800)] font-semibold shadow-2xs border border-[var(--color-sand-400)]/70'
+            : 'text-[var(--color-carbon-700)] hover:text-[var(--color-carbon-900)] hover:bg-[var(--color-warm-ivory-100)]/50 border border-transparent'
         }`}
       >
         English
@@ -45,10 +45,10 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ currentLocal
       <Link
         href={getTargetUrl('hi')}
         aria-current={currentLocale === 'hi' ? 'page' : undefined}
-        className={`px-3 py-1.5 rounded-full min-h-[36px] flex items-center transition-all ${
+        className={`px-2.5 py-1 rounded-[6px] min-h-[32px] sm:min-h-[28px] flex items-center active:scale-[1.02] transition-all duration-150 ease-out motion-reduce:transform-none press-scale focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-terracotta-500)] ${
           currentLocale === 'hi'
-            ? 'bg-white text-[var(--color-carbon-900)] shadow-xs font-bold'
-            : 'text-[var(--color-carbon-600)] hover:text-[var(--color-carbon-900)]'
+            ? 'bg-[var(--color-warm-ivory-100)] text-[var(--color-carbon-800)] font-semibold shadow-2xs border border-[var(--color-sand-400)]/70'
+            : 'text-[var(--color-carbon-700)] hover:text-[var(--color-carbon-900)] hover:bg-[var(--color-warm-ivory-100)]/50 border border-transparent'
         }`}
       >
         हिन्दी

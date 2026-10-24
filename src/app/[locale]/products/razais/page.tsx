@@ -1,14 +1,13 @@
-import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Locale, buildLocalizedMetadata } from '@/lib/seo';
+import { Locale, buildLocalizedMetadata, buildBreadcrumbJsonLd, getBaseUrl } from '@/lib/seo';
 import { CATEGORIES_DATA } from '@/content/catalog';
 import { SeasonalNotice } from '@/components/categories/SeasonalNotice';
 import { Badge } from '@/components/ui/Badge';
 import { FadeIn } from '@/components/motion/FadeIn';
 import { StaggerContainer, StaggerItem } from '@/components/motion/StaggerContainer';
 import { buildWhatsAppLink } from '@/lib/whatsapp';
-import { MessageCircle, ArrowRight, Palette, Sparkles, CheckCircle2 } from 'lucide-react';
+import { MessageCircle, ArrowRight } from 'lucide-react';
 
 export async function generateMetadata({
   params,
@@ -17,16 +16,22 @@ export async function generateMetadata({
 }) {
   const { locale: rawLocale } = await params;
   const locale: Locale = rawLocale === 'hi' ? 'hi' : 'en';
-  const category = CATEGORIES_DATA.razais;
 
   return buildLocalizedMetadata({
     locale,
     pathSegment: 'products/razais',
     title:
       locale === 'hi'
-        ? 'पारंपरिक रज़ाइयां | डायमंड फाइबर रतलाम'
-        : 'Razais (Traditional Indian Quilts) | Diamond Fibre Ratlam',
-    description: category.overview[locale],
+        ? 'रज़ाई निर्माता रतलाम | पारंपरिक भारतीय विंटर रज़ाइयां | डायमंड फाइबर'
+        : 'Razai Manufacturer in Ratlam | Traditional Indian Winter Quilts | Diamond Fibre',
+    description:
+      locale === 'hi'
+        ? 'रतलाम (म.प्र.) में निर्मित हल्की और गर्म रज़ाइयां। जयपुरी फ्लोरल प्रिंट्स, डायमंड इकत और ब्राइडल ब्रोकेड क्विल्ट्स। थोक एवं रिटेल पूछताछ उपलब्ध।'
+        : 'Lightweight, warm Indian quilted razais manufactured in Ratlam, Madhya Pradesh. Microfibre and poly-fill winter quilts in floral prints, diamond ikat, and bridal jacquards.',
+    ogImage: {
+      url: '/images/retouched/razais/hero-razai-patchwork-terracotta.webp',
+      alt: locale === 'hi' ? 'डायमंड फाइबर रज़ाई संग्रह' : 'Diamond Fibre Quilted Razais',
+    },
   });
 }
 
@@ -38,6 +43,39 @@ export default async function RazaisPage({
   const { locale: rawLocale } = await params;
   const locale: Locale = rawLocale === 'hi' ? 'hi' : 'en';
   const category = CATEGORIES_DATA.razais;
+  const baseUrl = getBaseUrl();
+
+  const breadcrumbsJsonLd = buildBreadcrumbJsonLd(baseUrl, locale, [
+    {
+      name: locale === 'hi' ? 'उत्पाद' : 'Products',
+      pathSegment: 'products',
+    },
+    {
+      name: locale === 'hi' ? 'रज़ाइयां (क्विल्ट्स)' : 'Quilted Razais',
+      pathSegment: 'products/razais',
+    },
+  ]);
+
+  const collectionJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name:
+      locale === 'hi'
+        ? 'पारंपरिक रज़ाइयां संग्रह | डायमंड फाइबर रतलाम'
+        : 'Traditional Quilted Razais Collection | Diamond Fibre Ratlam',
+    description: category.overview[locale],
+    url: `${baseUrl}/${locale}/products/razais`,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: category.representativeImages.map((img, idx) => ({
+        '@type': 'ListItem',
+        position: idx + 1,
+        name: img.caption ? img.caption[locale] : img.alt[locale],
+        image: `${baseUrl}${img.src}`,
+      })),
+    },
+  };
+
   const images = category.representativeImages;
 
   const img0 = images[0];
@@ -45,26 +83,34 @@ export default async function RazaisPage({
   const img2 = images[2];
   const img3 = images[3];
   const img4 = images[4];
-  const img5 = images[5];
 
   return (
-    <div className="py-10 md:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full flex flex-col gap-12 sm:gap-16">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
+      />
+      <div className="py-8 sm:py-10 md:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full flex flex-col gap-10 sm:gap-12 md:gap-16">
       {/* 1. Rich Textile Tapestry Hero Layout */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
         <div className="lg:col-span-6 flex flex-col gap-5">
           <FadeIn direction="up">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Badge variant="accent">
                 {category.shortTag[locale]}
               </Badge>
               <span className="text-xs uppercase tracking-widest font-mono text-[var(--color-carbon-500)]">
-                {locale === 'hi' ? 'मौसमी प्रिंट्स' : 'Seasonal Quilts'}
+                {locale === 'hi' ? 'रतलाम फैक्टरी उत्पादन' : 'Ratlam Factory Manufacturing'}
               </span>
             </div>
           </FadeIn>
 
           <FadeIn direction="up" delay={0.1}>
-            <h1 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl text-[var(--color-carbon-900)] tracking-tight leading-[1.15]">
+            <h1 className="font-display font-semibold text-3xl sm:text-4xl md:text-5xl text-[var(--color-carbon-900)] tracking-tight leading-[1.15] text-balance">
               {category.name[locale]}
             </h1>
             <p className="text-base sm:text-lg font-medium text-[var(--color-terracotta-600)] mt-2">
@@ -81,27 +127,21 @@ export default async function RazaisPage({
           {/* Textile Craft Highlights */}
           <FadeIn direction="up" delay={0.3}>
             <div className="grid grid-cols-2 gap-3 py-3 border-y border-[var(--color-sand-300)]">
-              <div className="flex items-start gap-2">
-                <Palette className="w-4 h-4 text-[var(--color-terracotta-600)] shrink-0 mt-0.5" />
-                <div className="text-xs">
-                  <span className="font-semibold block text-[var(--color-carbon-900)]">
-                    {locale === 'hi' ? 'विविध मौसमी प्रिंट्स' : 'Rotating Print Batches'}
-                  </span>
-                  <span className="text-[var(--color-carbon-500)]">
-                    {locale === 'hi' ? 'पैचवर्क, इकत, ब्रोकेड' : 'Patchwork, ikat & brocade'}
-                  </span>
-                </div>
+              <div className="flex flex-col">
+                <span className="font-semibold block text-xs text-[var(--color-carbon-900)]">
+                  {locale === 'hi' ? 'विविध मौसमी प्रिंट्स' : 'Rotating Print Batches'}
+                </span>
+                <span className="text-xs text-[var(--color-carbon-500)] mt-0.5">
+                  {locale === 'hi' ? 'पैचवर्क, इकत, ब्रोकेड' : 'Patchwork, ikat & brocade'}
+                </span>
               </div>
-              <div className="flex items-start gap-2">
-                <Sparkles className="w-4 h-4 text-[var(--color-terracotta-600)] shrink-0 mt-0.5" />
-                <div className="text-xs">
-                  <span className="font-semibold block text-[var(--color-carbon-900)]">
-                    {locale === 'hi' ? 'सघन चैनल क्विल्टिंग' : 'Channel Stitching'}
-                  </span>
-                  <span className="text-[var(--color-carbon-500)]">
-                    {locale === 'hi' ? 'समान गर्माहट व बाइंडिंग' : 'Even fill distribution'}
-                  </span>
-                </div>
+              <div className="flex flex-col">
+                <span className="font-semibold block text-xs text-[var(--color-carbon-900)]">
+                  {locale === 'hi' ? 'सघन चैनल क्विल्टिंग' : 'Channel Stitching'}
+                </span>
+                <span className="text-xs text-[var(--color-carbon-500)] mt-0.5">
+                  {locale === 'hi' ? 'समान गर्माहट व बाइंडिंग' : 'Even fill distribution'}
+                </span>
               </div>
             </div>
           </FadeIn>
@@ -112,14 +152,14 @@ export default async function RazaisPage({
                 href={buildWhatsAppLink(category.whatsappPrefill[locale])}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-[#25D366] text-white hover:bg-[#1EBE5D] font-bold text-sm px-6 py-3.5 rounded-full shadow-sm hover:shadow transition-all min-h-[48px]"
+                className="inline-flex items-center gap-2.5 bg-[var(--color-carbon-900)] text-white hover:bg-[var(--color-carbon-800)] border border-[var(--color-carbon-800)] active:scale-[1.02] press-scale duration-150 ease-out motion-reduce:transform-none font-semibold text-sm px-6 py-3.5 rounded-xl shadow-sm hover:shadow transition-all min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-terracotta-500)]"
               >
-                <MessageCircle className="w-5 h-5" />
+                <MessageCircle className="w-5 h-5 text-[#25D366] shrink-0" />
                 <span>{locale === 'hi' ? 'व्हाट्सएप पूछताछ' : 'Enquire on WhatsApp'}</span>
               </a>
               <Link
                 href={`/${locale}/wholesale`}
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-carbon-700)] hover:text-[var(--color-terracotta-600)] transition-colors py-2"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-carbon-700)] hover:text-[var(--color-terracotta-600)] active:scale-[1.02] press-scale duration-150 ease-out motion-reduce:transform-none transition-all py-2"
               >
                 <span>{locale === 'hi' ? 'थोक व व्यापारी लॉट्स' : 'Bulk & Trader Orders'}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -130,7 +170,7 @@ export default async function RazaisPage({
 
         {/* Hero Visual Composition: Geometric Patchwork Razai + Ikat Inset */}
         <div className="lg:col-span-6 relative">
-          <FadeIn direction="left" duration={0.8}>
+          <FadeIn direction="up" duration={0.8}>
             <div className="relative rounded-3xl overflow-hidden bg-[var(--color-sand-200)] shadow-xl aspect-4/3 sm:aspect-5/4">
               {img0 && (
                 <>
@@ -139,7 +179,7 @@ export default async function RazaisPage({
                     alt={img0.alt[locale]}
                     fill
                     priority
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    sizes="(max-width: 768px) 100vw, 600px"
                     className="object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-carbon-950)]/50 via-transparent to-transparent pointer-events-none" />
@@ -193,17 +233,17 @@ export default async function RazaisPage({
             <span className="text-xs uppercase font-mono tracking-widest text-[var(--color-terracotta-600)] font-semibold">
               {locale === 'hi' ? 'कपड़े व सजावट' : 'Print Diversity'}
             </span>
-            <h2 className="font-display font-bold text-2xl sm:text-3xl text-[var(--color-carbon-900)] mt-1">
-              {locale === 'hi' ? 'ब्राइडल ब्रोकेड से लेकर पारंपरिक पैस्ले तक' : 'The Textile Artistry of Razais'}
+            <h2 className="font-display font-semibold text-2xl sm:text-3xl text-[var(--color-carbon-900)] mt-1">
+              {locale === 'hi' ? 'ब्राइडल ब्रोकेड से लेकर हल्के फ्लोरल प्रिंट तक' : 'The Textile Artistry of Razais'}
             </h2>
             <p className="text-xs sm:text-sm text-[var(--color-carbon-600)] mt-2 leading-relaxed">
               {locale === 'hi'
-                ? 'शादी-विवाह के लिए भव्य ब्राइडल ब्रोकेड से लेकर रोजमर्रा के विंटर उपयोग के लिए क्लासिक चेक्स व पैस्ले रज़ाइयां।'
-                : 'From ornate gold jacquard bridal brocade to everyday classic plaids and crimson florals, Diamond Fibre razais celebrate rich Indian textile traditions.'}
+                ? 'शादी-विवाह के लिए भव्य ब्राइडल ब्रोकेड से लेकर रोजमर्रा के उपयोग के लिए हल्के फ्लोरल व साटन पाइपिंग रज़ाइयां।'
+                : 'From ornate gold jacquard bridal brocade to everyday floral quilts and satin piped borders, Diamond Fibre razais celebrate rich Indian textile traditions.'}
             </p>
           </div>
-          <div className="shrink-0 flex items-center gap-2 text-xs font-medium text-[var(--color-carbon-700)] bg-white px-3 py-1.5 rounded-full border border-[var(--color-sand-300)]">
-            <CheckCircle2 className="w-4 h-4 text-[#25D366]" />
+          <div className="w-fit self-start sm:self-auto shrink-0 flex items-center gap-2 text-xs font-medium text-[var(--color-carbon-700)] bg-white px-3.5 py-1.5 rounded-full border border-[var(--color-sand-300)]">
+            <span className="w-2 h-2 rounded-full bg-[#25D366]" aria-hidden="true" />
             <span>{locale === 'hi' ? 'सच्ची फोटोग्राफी' : 'Genuine Textile Imagery'}</span>
           </div>
         </div>
@@ -218,7 +258,7 @@ export default async function RazaisPage({
                   src={img1.src}
                   alt={img1.alt[locale]}
                   fill
-                  sizes="(max-width: 640px) 100vw, 25vw"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
@@ -235,7 +275,7 @@ export default async function RazaisPage({
             </StaggerItem>
           )}
 
-          {/* Style 2: Crimson Paisley */}
+          {/* Style 2: Lightweight Floral Fleece */}
           {img4 && (
             <StaggerItem className="flex flex-col gap-3 group">
               <div className="relative aspect-4/3 rounded-2xl overflow-hidden bg-[var(--color-sand-200)] border border-[var(--color-sand-300)] shadow-xs">
@@ -243,13 +283,13 @@ export default async function RazaisPage({
                   src={img4.src}
                   alt={img4.alt[locale]}
                   fill
-                  sizes="(max-width: 640px) 100vw, 25vw"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               <div className="flex flex-col">
                 <span className="text-xs font-bold text-[var(--color-carbon-900)]">
-                  {locale === 'hi' ? 'विंटर पैस्ले फ्लोरल' : 'Crimson Winter Paisley'}
+                  {locale === 'hi' ? 'हल्का फ्लोरल फ्लीस' : 'Lightweight Floral Fleece'}
                 </span>
                 {img4.caption && (
                   <p className="text-xs text-[var(--color-carbon-500)] mt-0.5">
@@ -260,7 +300,7 @@ export default async function RazaisPage({
             </StaggerItem>
           )}
 
-          {/* Style 3: Blue Plaid Fold */}
+          {/* Style 3: Satin Bound Stack */}
           {img3 && (
             <StaggerItem className="flex flex-col gap-3 group">
               <div className="relative aspect-4/3 rounded-2xl overflow-hidden bg-[var(--color-sand-200)] border border-[var(--color-sand-300)] shadow-xs">
@@ -268,13 +308,13 @@ export default async function RazaisPage({
                   src={img3.src}
                   alt={img3.alt[locale]}
                   fill
-                  sizes="(max-width: 640px) 100vw, 25vw"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               <div className="flex flex-col">
                 <span className="text-xs font-bold text-[var(--color-carbon-900)]">
-                  {locale === 'hi' ? 'क्लासिक चेक्स व लाइनिंग' : 'Classic Bound Plaid'}
+                  {locale === 'hi' ? 'साटन पाइपिंग स्टैक' : 'Satin Bound Stack'}
                 </span>
                 {img3.caption && (
                   <p className="text-xs text-[var(--color-carbon-500)] mt-0.5">
@@ -285,25 +325,25 @@ export default async function RazaisPage({
             </StaggerItem>
           )}
 
-          {/* Style 4: Purple Floral Satin Stack */}
-          {img5 && (
+          {/* Style 4: Royal Blue Diamond Ikat */}
+          {img2 && (
             <StaggerItem className="flex flex-col gap-3 group">
               <div className="relative aspect-4/3 rounded-2xl overflow-hidden bg-[var(--color-sand-200)] border border-[var(--color-sand-300)] shadow-xs">
                 <Image
-                  src={img5.src}
-                  alt={img5.alt[locale]}
+                  src={img2.src}
+                  alt={img2.alt[locale]}
                   fill
-                  sizes="(max-width: 640px) 100vw, 25vw"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               <div className="flex flex-col">
                 <span className="text-xs font-bold text-[var(--color-carbon-900)]">
-                  {locale === 'hi' ? 'साटन पाइपिंग स्टैक' : 'Satin Bound Stack'}
+                  {locale === 'hi' ? 'डायमंड इकत क्विल्ट' : 'Diamond Ikat Quilt'}
                 </span>
-                {img5.caption && (
+                {img2.caption && (
                   <p className="text-xs text-[var(--color-carbon-500)] mt-0.5">
-                    {img5.caption[locale]}
+                    {img2.caption[locale]}
                   </p>
                 )}
               </div>
@@ -320,7 +360,7 @@ export default async function RazaisPage({
         <span className="text-xs font-mono uppercase tracking-widest text-[var(--color-carbon-500)] font-semibold">
           {locale === 'hi' ? 'साइज और प्रिंट उपलब्धता' : 'Batch Parameters'}
         </span>
-        <h3 className="font-display font-bold text-lg text-[var(--color-carbon-900)]">
+        <h3 className="font-display font-medium text-lg text-[var(--color-carbon-900)]">
           {locale === 'hi' ? 'माप व मौसमी बैच की जानकारी' : 'Dimensions & Batch Availability'}
         </h3>
         <p className="text-xs sm:text-sm text-[var(--color-carbon-600)] leading-relaxed">
@@ -328,13 +368,145 @@ export default async function RazaisPage({
         </p>
       </section>
 
-      {/* 5. Editorial Enquiry / Wholesale Conversion Banner */}
+      {/* 5. EDUCATIONAL GUIDE: CHOOSING THE RIGHT RAZAI */}
+      <section className="bg-[var(--color-sand-100)] border border-[var(--color-sand-300)] rounded-3xl p-6 sm:p-10 flex flex-col gap-8">
+        <div className="flex flex-col gap-2 max-w-2xl">
+          <span className="text-xs font-mono uppercase tracking-widest text-[var(--color-carbon-500)] font-semibold">
+            {locale === 'hi' ? 'खरीददार गाइड एवं रज़ाई चयन' : 'Quilt Buying Guide & Thermal Warmth'}
+          </span>
+          <h2 className="font-display font-semibold text-2xl sm:text-3xl text-[var(--color-carbon-900)]">
+            {locale === 'hi'
+              ? 'सर्दियों की सही रज़ाई का चुनाव कैसे करें'
+              : 'Choosing the Right Winter Razai & Quilt'}
+          </h2>
+          <p className="text-sm text-[var(--color-carbon-600)] leading-relaxed">
+            {locale === 'hi'
+              ? 'डायमंड फाइबर रतलाम में हम पारंपरिक भारतीय डिज़ाइनों के साथ आधुनिक माइक्रोफाइबर भराव तकनीक का उपयोग करते हैं।'
+              : 'Our Ratlam quilting line combines authentic Indian heritage prints with lightweight conjugated polyfill to deliver high thermal insulation without uncomfortable bulk.'}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white p-6 rounded-2xl border border-[var(--color-sand-300)] shadow-sm flex flex-col gap-3">
+            <h3 className="text-[var(--color-terracotta-600)] font-semibold text-base">
+              {locale === 'hi' ? 'हल्का वजन और समान गर्माहट' : 'Lightweight Thermal Comfort'}
+            </h3>
+            <p className="text-xs sm:text-sm text-[var(--color-carbon-600)] leading-relaxed">
+              {locale === 'hi'
+                ? 'बारीक कम्प्यूटरीकृत व हाथ से निर्देशित क्विल्टिंग भराई को एक जगह इकट्ठा होने से रोकती है, जिससे पूरी रज़ाई में एक समान तापमान बना रहता है।'
+                : 'Dense diamond and floral stitching lines lock the microfibre batting securely into place, eliminating cold spots and preventing filling migration during sleep.'}
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl border border-[var(--color-sand-300)] shadow-sm flex flex-col gap-3">
+            <h3 className="text-[var(--color-terracotta-600)] font-semibold text-base">
+              {locale === 'hi' ? 'विवाह व उत्सव स्पेशल ब्रोकेड' : 'Bridal Jacquard & Seasonal Prints'}
+            </h3>
+            <p className="text-xs sm:text-sm text-[var(--color-carbon-600)] leading-relaxed">
+              {locale === 'hi'
+                ? 'शादी के मौसम के लिए समृद्ध ब्रोकेड व जयपुरी बूटा प्रिंट्स और नियमित घरेलू उपयोग के लिए मुलायम कॉटन-फील माइक्रो-पीच शैल।'
+                : 'Rich crimson jacquard brocades tailored for festive wedding trousseau gifting alongside everyday pastel geometrics for master bedrooms.'}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. EXPLORE OTHER BEDDING CATEGORIES */}
+      <section className="flex flex-col gap-6">
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-mono uppercase tracking-widest text-[var(--color-carbon-500)] font-semibold">
+              {locale === 'hi' ? 'सम्बंधित बेडिंग श्रेणियां' : 'Complete Your Bedding'}
+            </span>
+            <h2 className="font-display font-semibold text-xl sm:text-2xl text-[var(--color-carbon-900)]">
+              {locale === 'hi' ? 'अन्य उत्पाद संग्रह देखें' : 'Explore Related Bedding Lines'}
+            </h2>
+          </div>
+          <Link
+            href={`/${locale}/products`}
+            className="text-xs sm:text-sm font-semibold text-[var(--color-terracotta-600)] hover:underline inline-flex items-center gap-1"
+          >
+            <span>{locale === 'hi' ? 'सभी देखें' : 'View all'}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Link
+            href={`/${locale}/products/mattresses`}
+            className="group p-5 rounded-2xl bg-white border border-[var(--color-sand-300)] hover:border-[var(--color-terracotta-400)] transition-all hover:shadow-md flex flex-col justify-between gap-3"
+          >
+            <div>
+              <span className="text-[11px] font-mono text-[var(--color-carbon-500)] uppercase tracking-wider">
+                {locale === 'hi' ? 'श्रेणी 01' : 'Category 01'}
+              </span>
+              <h3 className="font-display font-medium text-base text-[var(--color-carbon-900)] group-hover:text-[var(--color-terracotta-600)] transition-colors mt-1">
+                {locale === 'hi' ? 'गद्दे व फ्लोर गद्दे' : 'Mattresses & Gaddas'}
+              </h3>
+              <p className="text-xs text-[var(--color-carbon-500)] mt-1 line-clamp-2">
+                {locale === 'hi'
+                  ? 'टफ्टेड फ्लोर गद्दे और बॉक्स्ड-एज कॉट मैट्रेस।'
+                  : 'Quilted floor gaddas and framed boxed-edge mattresses.'}
+              </p>
+            </div>
+            <span className="text-xs font-semibold text-[var(--color-terracotta-600)] inline-flex items-center gap-1">
+              {locale === 'hi' ? 'गद्दे देखें' : 'View mattresses'} &rarr;
+            </span>
+          </Link>
+
+          <Link
+            href={`/${locale}/products/pillows`}
+            className="group p-5 rounded-2xl bg-white border border-[var(--color-sand-300)] hover:border-[var(--color-terracotta-400)] transition-all hover:shadow-md flex flex-col justify-between gap-3"
+          >
+            <div>
+              <span className="text-[11px] font-mono text-[var(--color-carbon-500)] uppercase tracking-wider">
+                {locale === 'hi' ? 'श्रेणी 02' : 'Category 02'}
+              </span>
+              <h3 className="font-display font-medium text-base text-[var(--color-carbon-900)] group-hover:text-[var(--color-terracotta-600)] transition-colors mt-1">
+                {locale === 'hi' ? 'आरामदायक तकिए' : 'Bedding Pillows'}
+              </h3>
+              <p className="text-xs text-[var(--color-carbon-500)] mt-1 line-clamp-2">
+                {locale === 'hi'
+                  ? 'माइक्रोफाइबर और पॉली-फिल सपोर्ट तकिए।'
+                  : 'Resilient microfibre and conjugated hollow-fill pillows.'}
+              </p>
+            </div>
+            <span className="text-xs font-semibold text-[var(--color-terracotta-600)] inline-flex items-center gap-1">
+              {locale === 'hi' ? 'तकिए देखें' : 'View pillows'} &rarr;
+            </span>
+          </Link>
+
+          <Link
+            href={`/${locale}/products/blankets`}
+            className="group p-5 rounded-2xl bg-white border border-[var(--color-sand-300)] hover:border-[var(--color-terracotta-400)] transition-all hover:shadow-md flex flex-col justify-between gap-3"
+          >
+            <div>
+              <span className="text-[11px] font-mono text-[var(--color-carbon-500)] uppercase tracking-wider">
+                {locale === 'hi' ? 'श्रेणी 04' : 'Category 04'}
+              </span>
+              <h3 className="font-display font-medium text-base text-[var(--color-carbon-900)] group-hover:text-[var(--color-terracotta-600)] transition-colors mt-1">
+                {locale === 'hi' ? 'मुलायम कंबल' : 'Mink & Fleece Blankets'}
+              </h3>
+              <p className="text-xs text-[var(--color-carbon-500)] mt-1 line-clamp-2">
+                {locale === 'hi'
+                  ? 'शानदार मिंक और पोलर फ्लीस कंबल।'
+                  : 'Single & double bed embossed plush blankets.'}
+              </p>
+            </div>
+            <span className="text-xs font-semibold text-[var(--color-terracotta-600)] inline-flex items-center gap-1">
+              {locale === 'hi' ? 'कंबल देखें' : 'View blankets'} &rarr;
+            </span>
+          </Link>
+        </div>
+      </section>
+
+      {/* 7. Editorial Enquiry / Wholesale Conversion Banner */}
       <section className="p-8 sm:p-10 rounded-3xl bg-[var(--color-carbon-900)] text-white flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
         <div className="flex flex-col gap-2 max-w-xl">
           <span className="text-xs font-mono uppercase tracking-widest text-[var(--color-terracotta-400)] font-semibold">
             {locale === 'hi' ? 'सीधा संपर्क' : 'Direct Factory Desk'}
           </span>
-          <h3 className="font-display font-bold text-2xl sm:text-3xl">
+          <h3 className="font-display font-semibold text-2xl sm:text-3xl">
             {locale === 'hi'
               ? 'वर्तमान रज़ाइयों के प्रिंट्स व दरों के लिए पूछें'
               : 'Enquire About Current Razai Prints & Pricing'}
@@ -351,14 +523,14 @@ export default async function RazaisPage({
             href={buildWhatsAppLink(category.whatsappPrefill[locale])}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#25D366] text-white hover:bg-[#1EBE5D] font-bold text-sm px-7 py-3.5 rounded-full shadow-md hover:shadow-lg transition-all min-h-[48px]"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white text-[var(--color-carbon-900)] hover:bg-[var(--color-warm-ivory-100)] border border-white active:scale-[1.02] press-scale duration-150 ease-out motion-reduce:transform-none font-semibold text-sm px-7 py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-terracotta-500)]"
           >
-            <MessageCircle className="w-5 h-5" />
+            <MessageCircle className="w-5 h-5 text-[#25D366] shrink-0" />
             <span>{locale === 'hi' ? 'व्हाट्सएप पूछताछ' : 'Enquire on WhatsApp'}</span>
           </a>
           <Link
             href={`/${locale}/wholesale`}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-sm font-semibold px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/15 text-white transition-colors border border-white/20 min-h-[48px]"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-sm font-semibold px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/15 text-white active:scale-[1.02] press-scale duration-150 ease-out motion-reduce:transform-none transition-all border border-white/20 min-h-[48px]"
           >
             <span>{locale === 'hi' ? 'थोक व रीसेलर्स' : 'Wholesale & Resellers'}</span>
             <ArrowRight className="w-4 h-4" />
@@ -366,5 +538,6 @@ export default async function RazaisPage({
         </div>
       </section>
     </div>
+    </>
   );
 }

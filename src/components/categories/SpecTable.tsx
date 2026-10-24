@@ -29,8 +29,8 @@ export const SpecTable: React.FC<SpecTableProps> = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="overflow-x-auto border border-[var(--color-sand-300)] rounded-xl bg-white">
-        <table className="w-full text-left text-xs sm:text-sm">
+      <div className="overflow-x-auto border border-[var(--color-sand-300)] rounded-xl bg-white [webkit-overflow-scrolling:touch]">
+        <table className="w-full min-w-[460px] text-left text-xs sm:text-sm">
           <thead className="bg-[var(--color-sand-300)]/40 text-[var(--color-carbon-800)] font-semibold border-b border-[var(--color-sand-300)]">
             <tr>
               <th className="py-3 px-4">
@@ -63,6 +63,10 @@ export const SpecTable: React.FC<SpecTableProps> = ({
           </tbody>
         </table>
       </div>
+
+      <p className="text-[11px] text-[var(--color-carbon-500)] italic px-1 block sm:hidden">
+        {locale === 'hi' ? '← पूरी तालिका देखने के लिए दायें-बायें स्क्रॉल करें →' : '← Scroll horizontally to view full specifications →'}
+      </p>
 
       {availabilityNote && (
         <p className="text-xs text-[var(--color-carbon-600)] italic px-1">

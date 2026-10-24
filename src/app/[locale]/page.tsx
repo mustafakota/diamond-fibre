@@ -1,13 +1,13 @@
-import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Locale, buildLocalizedMetadata } from '@/lib/seo';
+import { Locale, buildLocalizedMetadata, getBaseUrl } from '@/lib/seo';
 import { getDictionary } from '@/content/dictionaries';
 import { EditorialCategoryShowcase } from '@/components/home/EditorialCategoryShowcase';
 import { SeasonalNotice } from '@/components/categories/SeasonalNotice';
 import { buildWhatsAppLink } from '@/lib/whatsapp';
-import { MessageCircle, ArrowRight, Building2, Sparkles, Scissors, Layers, CheckCircle2 } from 'lucide-react';
+import { MessageCircle, ArrowRight } from 'lucide-react';
 import { FadeIn } from '@/components/motion/FadeIn';
+import { FabricBrandIntro } from '@/components/home/FabricBrandIntro';
 
 export async function generateMetadata({
   params,
@@ -16,16 +16,18 @@ export async function generateMetadata({
 }) {
   const { locale: rawLocale } = await params;
   const locale: Locale = rawLocale === 'hi' ? 'hi' : 'en';
-  const dict = getDictionary(locale);
 
   return buildLocalizedMetadata({
     locale,
     pathSegment: '',
     title:
       locale === 'hi'
-        ? 'डायमंड फाइबर | रतलाम में स्थित बेडिंग निर्माता (गद्दे, तकिए, रज़ाइयां, कंबल)'
-        : 'Diamond Fibre | Bedding Manufacturer in Ratlam (Mattresses, Pillows, Razais, Blankets)',
-    description: dict.home.hero.subheadline,
+        ? 'डायमंड फाइबर | रतलाम बेडिंग व गद्दा निर्माता (मध्य प्रदेश)'
+        : 'Diamond Fibre | Bedding & Mattress Manufacturer in Ratlam, MP',
+    description:
+      locale === 'hi'
+        ? 'रतलाम (मध्य प्रदेश) स्थित डायरेक्ट बेडिंग निर्माण इकाई। मजबूत टफ्टेड गद्दे, आरामदायक तकिए, विंटर रज़ाइयां और मिंक कंबल। खुदरा व थोक पूछताछ उपलब्ध।'
+        : 'Direct bedding manufacturer in Ratlam, Madhya Pradesh. Producing tufted cotton gaddas, boxed mattresses, fiber pillows, winter razais, and mink blankets.',
   });
 }
 
@@ -37,58 +39,55 @@ export default async function HomePage({
   const { locale: rawLocale } = await params;
   const locale: Locale = rawLocale === 'hi' ? 'hi' : 'en';
   const dict = getDictionary(locale);
+  const baseUrl = getBaseUrl();
+
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: locale === 'hi' ? 'डायमंड फाइबर' : 'Diamond Fibre',
+    url: `${baseUrl}/${locale}`,
+    inLanguage: locale === 'hi' ? 'hi-IN' : 'en-IN',
+    description:
+      locale === 'hi'
+        ? 'रतलाम (मध्य प्रदेश) में स्थित बेडिंग निर्माता। गद्दे, तकिए, रज़ाइयां और कंबल का प्रत्यक्ष विनिर्माण।'
+        : 'Direct bedding manufacturing unit in Ratlam, Madhya Pradesh producing mattresses, pillows, razais, and blankets.',
+  };
 
   return (
-    <div className="flex flex-col gap-16 md:gap-28 pb-20 overflow-hidden">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
+      <FabricBrandIntro locale={locale} />
+      <div className="flex flex-col gap-12 sm:gap-16 md:gap-24 pb-16 sm:pb-20 overflow-hidden">
       {/* 1. ASYMMETRIC EDITORIAL HERO */}
-      <section className="relative pt-6 sm:pt-12 md:pt-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+      <section className="relative pt-6 sm:pt-10 md:pt-14 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
           {/* Left Column: Typographic Drama */}
-          <div className="lg:col-span-7 flex flex-col gap-6 sm:gap-8">
-            <FadeIn direction="up" delay={0.05}>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--color-sand-300)]/50 border border-[var(--color-sand-400)]/60 text-xs font-mono text-[var(--color-carbon-800)] font-medium">
-                <Sparkles className="w-3.5 h-3.5 text-[var(--color-terracotta-600)]" />
-                <span>
-                  {locale === 'hi' ? 'द कम्फर्ट रिवोल्यूशन • रतलाम (स्था. 2018)' : 'The Comfort Revolution • Ratlam (Est. 2018)'}
+          <div className="lg:col-span-7 flex flex-col gap-6 sm:gap-7">
+            <FadeIn direction="up" delay={0.08}>
+              <h1 className="font-display font-semibold text-3xl min-[380px]:text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl text-[var(--color-carbon-900)] tracking-tight leading-[1.1] sm:leading-[1.08] text-balance">
+                <span>{dict.home.hero.headlineMain}</span>
+                <span className="block mt-1 sm:mt-1.5 font-serif italic font-normal text-[var(--color-terracotta-600)]">
+                  {dict.home.hero.headlineLocation}
                 </span>
-              </div>
-            </FadeIn>
-
-            <FadeIn direction="up" delay={0.15}>
-              <h1 className="font-display font-bold text-4xl sm:text-6xl md:text-7xl lg:text-7xl xl:text-8xl text-[var(--color-carbon-900)] tracking-tight leading-[1.04]">
-                {locale === 'hi' ? (
-                  <>
-                    विश्राम की कला। <br />
-                    <span className="font-serif italic font-normal text-[var(--color-terracotta-600)]">
-                      रतलाम में निर्मित।
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    The Art of Rest. <br />
-                    <span className="font-serif italic font-normal text-[var(--color-terracotta-600)]">
-                      Engineered in Ratlam.
-                    </span>
-                  </>
-                )}
               </h1>
             </FadeIn>
 
-            <FadeIn direction="up" delay={0.25}>
+            <FadeIn direction="up" delay={0.18}>
               <p className="text-base sm:text-lg lg:text-xl text-[var(--color-carbon-600)] leading-relaxed max-w-xl">
-                {locale === 'hi'
-                  ? 'पारिवारिक विनिर्माण परंपरा — रजाईदार व बॉक्स्ड-एज गद्दे (मैट्रेस), आरामदायक तकिए, सीजनल रज़ाइयां और गर्म कंबल। शुद्ध कारीगरी, सीधे हमारी रतलाम वर्कशॉप से।'
-                  : 'Family-run bedding manufacturing direct from our Ratlam facility. Mattresses (traditional gaddas & boxed beds), everyday pillows, seasonal razais, and plush blankets.'}
+                {dict.home.hero.subheadline}
               </p>
             </FadeIn>
 
-            <FadeIn direction="up" delay={0.35}>
+            <FadeIn direction="up" delay={0.28}>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
                 <a
                   href="#collections-matrix"
-                  className="inline-flex items-center justify-center gap-2.5 bg-[var(--color-terracotta-500)] text-white hover:bg-[var(--color-terracotta-600)] min-h-[50px] px-7 py-3 rounded-full font-semibold text-sm transition-all duration-200 shadow-sm hover:shadow-md"
+                  className="inline-flex items-center justify-center gap-2.5 bg-[var(--color-terracotta-500)] text-white hover:bg-[var(--color-terracotta-600)] active:scale-[1.02] press-scale duration-150 ease-out motion-reduce:transform-none min-h-[50px] px-7 py-3 rounded-full font-semibold text-sm transition-all shadow-sm hover:shadow-md"
                 >
-                  <span>{locale === 'hi' ? 'चारों श्रेणियां देखें' : 'Explore Collections'}</span>
+                  <span>{dict.home.hero.ctaBrowse}</span>
                   <ArrowRight className="w-4 h-4" />
                 </a>
 
@@ -100,25 +99,23 @@ export default async function HomePage({
                   )}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 bg-[#25D366] text-white hover:bg-[#1EBE5D] min-h-[50px] px-6 py-3 rounded-full font-semibold text-sm transition-all duration-200 shadow-sm"
+                  className="inline-flex items-center justify-center gap-2.5 bg-[var(--color-carbon-900)] text-white hover:bg-[var(--color-carbon-800)] border border-[var(--color-carbon-800)] active:scale-[1.02] press-scale duration-150 ease-out motion-reduce:transform-none min-h-[50px] px-6 py-3 rounded-xl font-semibold text-sm transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-terracotta-500)]"
                 >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>{locale === 'hi' ? 'व्हाट्सएप पूछताछ' : 'WhatsApp Sales Desk'}</span>
+                  <MessageCircle className="w-4 h-4 text-[#25D366] shrink-0" />
+                  <span>{dict.home.hero.ctaWhatsApp}</span>
                 </a>
               </div>
             </FadeIn>
 
             {/* Quick Provenance Footnote */}
-            <FadeIn direction="up" delay={0.45}>
-              <div className="flex items-center gap-4 pt-4 border-t border-[var(--color-sand-300)] text-xs text-[var(--color-carbon-600)]">
-                <span className="flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-                  <span>{locale === 'hi' ? 'रतलाम में अपनी इकाई' : 'Own Facility in Ratlam'}</span>
+            <FadeIn direction="up" delay={0.38}>
+              <div className="flex flex-wrap items-center justify-start gap-x-4 gap-y-2 pt-4 border-t border-[var(--color-sand-300)] text-xs text-[var(--color-carbon-700)]">
+                <span className="font-semibold tracking-wide">
+                  {locale === 'hi' ? 'रतलाम में अपनी इकाई' : 'Own Facility in Ratlam'}
                 </span>
                 <span className="text-[var(--color-sand-400)]">•</span>
-                <span className="flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-                  <span>{locale === 'hi' ? 'दुकानों व रीसेलर्स हेतु थोक' : 'Retailer & Reseller Supply'}</span>
+                <span className="font-semibold tracking-wide">
+                  {locale === 'hi' ? 'दुकानों व रीसेलर्स हेतु थोक' : 'Retailer & Reseller Supply'}
                 </span>
               </div>
             </FadeIn>
@@ -130,7 +127,7 @@ export default async function HomePage({
               {/* Primary Image: Expansive Botanical Gadda Crop */}
               <div className="relative aspect-[4/3] sm:aspect-[16/11] rounded-3xl overflow-hidden border border-[var(--color-sand-300)] shadow-[var(--shadow-card)] bg-white group">
                 <Image
-                  src="/images/hero/editorial-comfort-hero.webp"
+                  src="/images/retouched/hero/editorial-comfort-hero.webp"
                   alt={
                     locale === 'hi'
                       ? 'रतलाम वर्कशॉप में निर्मित सेज ग्रीन फ्लोरल रजाईदार गद्दे'
@@ -138,14 +135,14 @@ export default async function HomePage({
                   }
                   fill
                   priority={true}
-                  sizes="(max-width: 1024px) 100vw, 45vw"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 540px"
                   className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                 <div className="absolute bottom-4 left-4 right-4 text-white text-xs font-medium backdrop-blur-xs bg-black/40 px-3.5 py-2 rounded-xl">
                   {locale === 'hi'
-                    ? 'सेज ग्रीन बॉटनिकल गद्दे — मजबूत पाइपिंग बॉर्डर और सघन टफ्टिंग'
-                    : 'Sage Botanical Gadda — Reinforced piped boxed border & dense tufting'}
+                    ? 'सेज ग्रीन बॉटनिकल गद्दे: मजबूत पाइपिंग बॉर्डर और सघन टफ्टिंग'
+                    : 'Sage Botanical Gadda: Reinforced piped boxed border & dense tufting'}
                 </div>
               </div>
 
@@ -153,7 +150,7 @@ export default async function HomePage({
               <div className="hidden sm:flex absolute -bottom-8 -left-6 z-20 bg-white p-2.5 rounded-2xl shadow-xl border border-[var(--color-sand-300)] max-w-[220px] flex-col gap-2">
                 <div className="relative aspect-[4/3] w-full rounded-xl overflow-hidden bg-[var(--color-sand-300)]/20">
                   <Image
-                    src="/images/story/craft-quilting-macro-stitch.webp"
+                    src="/images/retouched/story/craft-quilting-macro-stitch.webp"
                     alt={
                       locale === 'hi'
                         ? 'सघन डायगोनल क्विल्टिंग सिलाई का विवरण'
@@ -179,25 +176,25 @@ export default async function HomePage({
       </section>
 
       {/* 2. RESTRAINED EDITORIAL RIBBON: 4 MANUFACTURING DISCIPLINES */}
-      <section className="border-y border-[var(--color-sand-300)] bg-[var(--color-sand-300)]/20 py-4 px-4 sm:px-6 lg:px-8">
+      <section className="border-y border-[var(--color-sand-300)] bg-[var(--color-sand-300)]/20 py-3.5 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-around gap-4 text-xs sm:text-sm font-medium text-[var(--color-carbon-800)]">
           <span className="flex items-center gap-2">
-            <Scissors className="w-4 h-4 text-[var(--color-terracotta-600)]" />
+            <span className="font-mono text-xs font-semibold text-[var(--color-terracotta-600)]">01</span>
             <span>{locale === 'hi' ? 'सिलाई (Precision Stitching)' : 'Precision Stitching'}</span>
           </span>
           <span className="text-[var(--color-sand-400)] hidden md:inline">•</span>
           <span className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-[var(--color-terracotta-600)]" />
+            <span className="font-mono text-xs font-semibold text-[var(--color-terracotta-600)]">02</span>
             <span>{locale === 'hi' ? 'भराई (Material Filling)' : 'Material Filling'}</span>
           </span>
           <span className="text-[var(--color-sand-400)] hidden md:inline">•</span>
           <span className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[var(--color-terracotta-600)]" />
+            <span className="font-mono text-xs font-semibold text-[var(--color-terracotta-600)]">03</span>
             <span>{locale === 'hi' ? 'क्विल्टिंग (Channel Quilting)' : 'Multi-Channel Quilting'}</span>
           </span>
           <span className="text-[var(--color-sand-400)] hidden md:inline">•</span>
           <span className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-[var(--color-terracotta-600)]" />
+            <span className="font-mono text-xs font-semibold text-[var(--color-terracotta-600)]">04</span>
             <span>{locale === 'hi' ? 'पैकिंग (Bulk Protective Packing)' : 'Protective Bulk Packing'}</span>
           </span>
         </div>
@@ -215,20 +212,20 @@ export default async function HomePage({
 
       {/* 5. RATLAM MANUFACTURING HERITAGE SPREAD (DEEP CARBON BACKGROUND) */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        <div className="bg-[var(--color-carbon-900)] text-[var(--color-warm-ivory-100)] rounded-3xl p-8 sm:p-12 lg:p-16 flex flex-col gap-10">
+        <div className="bg-[var(--color-carbon-900)] text-[var(--color-warm-ivory-100)] rounded-3xl p-5 sm:p-8 md:p-12 lg:p-16 flex flex-col gap-8 sm:gap-10">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 border-b border-[var(--color-carbon-800)] pb-8">
             <div className="max-w-2xl flex flex-col gap-3">
               <span className="text-xs font-mono uppercase tracking-widest text-[var(--color-terracotta-500)] font-semibold">
-                {locale === 'hi' ? 'रतलाम, मध्य प्रदेश • 2018 से' : 'Ratlam, Madhya Pradesh • Established 2018'}
+                {locale === 'hi' ? 'रतलाम, मध्य प्रदेश • बेडिंग निर्माण' : 'Ratlam, Madhya Pradesh • Bedding Manufacturing'}
               </span>
-              <h2 className="font-display font-bold text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight">
-                {locale === 'hi' ? 'शुद्ध विनिर्माण परंपरा' : 'Rooted in Authentic Manufacturing'}
+              <h2 className="font-display font-semibold text-2xl sm:text-4xl lg:text-5xl text-white tracking-tight text-balance">
+                {locale === 'hi' ? 'रतलाम में बेडिंग निर्माण' : 'Bedding Manufacturing in Ratlam'}
               </h2>
             </div>
             <p className="text-xs sm:text-sm text-[var(--color-sand-300)]/80 max-w-md leading-relaxed">
               {locale === 'hi'
-                ? 'डायमंड फाइबर केवल एक ब्रांड नहीं, बल्कि रतलाम में 2018 से संचालित एक पारिवारिक निर्माण इकाई है। हम स्वयं सिलाई, भराई और क्विल्टिंग से उत्पाद तैयार करते हैं।'
-                : 'Diamond Fibre operates a family-run bedding manufacturing unit established in 2018 in Ratlam, MP. We oversee our own casing stitching, material filling, and channel quilting.'}
+                ? 'डायमंड फाइबर रतलाम में संचालित एक बेडिंग निर्माण इकाई है। हम स्वयं सिलाई, भराई और क्विल्टिंग कर अपने उत्पाद तैयार करते हैं।'
+                : 'Diamond Fibre operates a bedding manufacturing unit in Ratlam, Madhya Pradesh. We manage our own casing stitching, material filling, and channel quilting.'}
             </p>
           </div>
 
@@ -237,14 +234,14 @@ export default async function HomePage({
             <div className="flex flex-col gap-3">
               <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden border border-[var(--color-carbon-800)] bg-[var(--color-carbon-800)]">
                 <Image
-                  src="/images/story/craft-quilting-macro-stitch.webp"
+                  src="/images/retouched/story/craft-quilting-macro-stitch.webp"
                   alt={
                     locale === 'hi'
                       ? 'रतलाम वर्कशॉप में सघन डायगोनल क्विल्टिंग और कपड़े की बुनाई'
                       : 'Dense diagonal channel quilting stitch and woven fabric construction'
                   }
                   fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  sizes="(max-width: 768px) 100vw, 600px"
                   className="object-cover"
                 />
               </div>
@@ -263,14 +260,14 @@ export default async function HomePage({
             <div className="flex flex-col gap-3">
               <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden border border-[var(--color-carbon-800)] bg-[var(--color-carbon-800)]">
                 <Image
-                  src="/images/story/craft-tufting-piped-border.webp"
+                  src="/images/retouched/story/craft-tufting-piped-border.webp"
                   alt={
                     locale === 'hi'
                       ? 'मजबूत पाइपिंग बॉर्डर और मल्टी-लेयर टफ्टिंग की कारीगरी'
                       : 'Reinforced piped edge border and multi-layer tufting construction'
                   }
                   fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  sizes="(max-width: 768px) 100vw, 600px"
                   className="object-cover"
                 />
               </div>
@@ -295,9 +292,9 @@ export default async function HomePage({
             </span>
             <Link
               href={`/${locale}/our-story`}
-              className="inline-flex items-center gap-2 text-xs font-bold text-[var(--color-terracotta-500)] hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 text-xs font-bold text-[var(--color-terracotta-500)] hover:text-white active:scale-[1.02] press-scale duration-150 ease-out motion-reduce:transform-none transition-colors"
             >
-              <span>{locale === 'hi' ? 'हमारा पूरा सफर पढ़ें' : 'Read Our Full Story'}</span>
+              <span>{locale === 'hi' ? 'हमारे बारे में और जानें' : 'Learn More About Us'}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -306,25 +303,25 @@ export default async function HomePage({
 
       {/* 6. WHOLESALE & RESELLER VOLUME SUPPLY */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        <div className="bg-white border border-[var(--color-sand-300)] rounded-3xl p-8 sm:p-12 shadow-xs flex flex-col lg:flex-row items-center justify-between gap-8">
+        <div className="bg-white border border-[var(--color-sand-300)] rounded-3xl p-5 sm:p-8 md:p-12 shadow-xs flex flex-col lg:flex-row items-center justify-between gap-8">
           <div className="max-w-xl flex flex-col gap-4">
             <span className="text-xs font-mono uppercase tracking-widest text-[var(--color-terracotta-600)] font-semibold">
               {dict.nav.wholesale}
             </span>
-            <h2 className="font-display font-bold text-2xl sm:text-3xl lg:text-4xl text-[var(--color-carbon-900)] tracking-tight">
+            <h2 className="font-display font-semibold text-2xl sm:text-3xl lg:text-4xl text-[var(--color-carbon-900)] tracking-tight text-balance">
               {locale === 'hi'
                 ? 'दुकानदारों व रीसेलर्स के लिए फैक्ट्री सप्लाई'
                 : 'Direct Supply for Retailers & Stockists'}
             </h2>
             <p className="text-xs sm:text-sm text-[var(--color-carbon-600)] leading-relaxed">
               {locale === 'hi'
-                ? 'मध्य प्रदेश और आसपास के क्षेत्रों में थोक व्यापारियों, फर्निशिंग स्टोर्स और रीसेलर्स के लिए निरंतर आपूर्ति। बैच के आधार पर न्यूनतम ऑर्डर मात्रा व फ्रेट शर्तें लागू होती हैं।'
-                : 'Consistent bulk supply for home furnishing retailers, distributors, and institutional stockists across Madhya Pradesh and neighboring regional transit routes.'}
+                ? 'मध्य प्रदेश और आसपास के क्षेत्रों में फर्निशिंग स्टोर्स, थोक व्यापारियों और रीसेलर्स के लिए नियमित आपूर्ति। ऑर्डर मात्रा के अनुसार नियम व शर्तें लागू होती हैं।'
+                : 'Reliable bulk supply for home furnishing retailers, distributors, and resellers across Madhya Pradesh and neighboring regions.'}
             </p>
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <Link
                 href={`/${locale}/wholesale`}
-                className="inline-flex items-center gap-2 bg-[var(--color-terracotta-500)] text-white hover:bg-[var(--color-terracotta-600)] px-6 py-3 rounded-full font-semibold text-xs sm:text-sm transition-colors min-h-[48px]"
+                className="inline-flex items-center gap-2 bg-[var(--color-terracotta-500)] text-white hover:bg-[var(--color-terracotta-600)] active:scale-[1.02] press-scale duration-150 ease-out motion-reduce:transform-none px-6 py-3 rounded-full font-semibold text-xs sm:text-sm transition-all min-h-[48px]"
               >
                 <span>{dict.wholesale.form.heading}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -337,7 +334,7 @@ export default async function HomePage({
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 border border-[var(--color-sand-400)] text-[var(--color-carbon-900)] hover:bg-[var(--color-sand-300)]/40 px-5 py-3 rounded-full font-semibold text-xs sm:text-sm transition-colors min-h-[48px]"
+                className="inline-flex items-center gap-2 border border-[var(--color-sand-400)] text-[var(--color-carbon-900)] hover:bg-[var(--color-sand-300)]/40 active:scale-[1.02] press-scale duration-150 ease-out motion-reduce:transform-none px-5 py-3 rounded-full font-semibold text-xs sm:text-sm transition-all min-h-[48px]"
               >
                 <MessageCircle className="w-4 h-4 text-[#25D366]" />
                 <span>{locale === 'hi' ? 'थोक चैट' : 'Wholesale WhatsApp'}</span>
@@ -349,7 +346,7 @@ export default async function HomePage({
           <div className="grid grid-cols-2 gap-3 w-full lg:max-w-md shrink-0">
             <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-[var(--color-sand-300)] bg-[var(--color-sand-300)]/20 shadow-xs">
               <Image
-                src="/images/wholesale/wholesale-mattress-inventory-stack.webp"
+                src="/images/retouched/wholesale/wholesale-mattress-inventory-stack.webp"
                 alt={
                   locale === 'hi'
                     ? 'रतलाम वर्कशॉप में तैयार मैट्रेस का स्टैक'
@@ -362,7 +359,7 @@ export default async function HomePage({
             </div>
             <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-[var(--color-sand-300)] bg-[var(--color-sand-300)]/20 shadow-xs">
               <Image
-                src="/images/wholesale/wholesale-pillow-packs-strapped.webp"
+                src="/images/retouched/wholesale/wholesale-pillow-packs-strapped.webp"
                 alt={
                   locale === 'hi'
                     ? 'थोक आपूर्ति के लिए स्ट्रैप से बंधा 4 तकियों का कमर्शियल पैक'
@@ -377,5 +374,6 @@ export default async function HomePage({
         </div>
       </section>
     </div>
+    </>
   );
 }

@@ -2,7 +2,6 @@ import React from 'react';
 import { Locale, getBaseUrl } from '@/lib/seo';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { StickyWhatsApp } from '@/components/layout/StickyWhatsApp';
 
 export async function generateStaticParams() {
   return [{ locale: 'en' }, { locale: 'hi' }];
@@ -19,23 +18,38 @@ export default async function LocaleLayout({
   const locale: Locale = rawLocale === 'hi' ? 'hi' : 'en';
   const baseUrl = getBaseUrl();
 
-  // Truthful Schema.org LocalBusiness structured data
+  // Truthful Schema.org LocalBusiness & Manufacturer structured data
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'HomeGoodsStore',
+    '@type': ['HomeGoodsStore', 'Manufacturer'],
     name: locale === 'hi' ? 'डायमंड फाइबर' : 'Diamond Fibre',
     alternateName: 'Diamond Fibres',
     description:
       locale === 'hi'
-        ? 'रतलाम (मध्य प्रदेश) में स्थित पारिवारिक बेडिंग निर्माण संस्थान। गद्दे (मैट्रेस), तकिए, रज़ाइयां और कंबल।'
-        : 'Family-run bedding manufacturer in Ratlam, Madhya Pradesh since 2018. Producing mattresses (gaddas), pillows, razais, and blankets.',
+        ? 'रतलाम (मध्य प्रदेश) में स्थित बेडिंग निर्माता। गद्दे (मैट्रेस), तकिए, रज़ाइयां और कंबल का प्रत्यक्ष विनिर्माण।'
+        : 'Bedding manufacturer in Ratlam, Madhya Pradesh. Direct manufacturing of mattresses (gaddas), pillows, razais, and blankets.',
     url: `${baseUrl}/${locale}`,
+    logo: `${baseUrl}/images/logo/diamond-fibre-logo.png`,
+    image: `${baseUrl}/images/logo/diamond-fibre-logo.png`,
     telephone: '+91 7974644185',
+    priceRange: '₹₹',
     address: {
       '@type': 'PostalAddress',
       addressLocality: 'Ratlam',
       addressRegion: 'Madhya Pradesh',
       addressCountry: 'IN',
+    },
+    areaServed: [
+      { '@type': 'AdministrativeArea', name: 'Ratlam' },
+      { '@type': 'AdministrativeArea', name: 'Madhya Pradesh' },
+      { '@type': 'Country', name: 'India' },
+    ],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: '+91 7974644185',
+      contactType: 'sales and wholesale enquiries',
+      areaServed: 'IN',
+      availableLanguage: ['en', 'hi'],
     },
     hasMap: 'https://maps.google.com/?cid=9316049051871516981',
     knowsAbout: [
@@ -49,7 +63,14 @@ export default async function LocaleLayout({
   };
 
   return (
-    <div lang={locale} className="flex flex-col min-h-screen">
+    <div id="top" tabIndex={-1} lang={locale === 'hi' ? 'hi-IN' : 'en-IN'} className="flex flex-col min-h-screen outline-none">
+      {/* Synchronize HTML document element language for crawlers and assistive technologies */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `document.documentElement.lang = '${locale === 'hi' ? 'hi-IN' : 'en-IN'}';`,
+        }}
+      />
+
       {/* Accessible Keyboard Skip to Content Link */}
       <a
         href="#main-content"
@@ -69,7 +90,6 @@ export default async function LocaleLayout({
         {children}
       </main>
       <Footer locale={locale} />
-      <StickyWhatsApp locale={locale} />
     </div>
   );
 }

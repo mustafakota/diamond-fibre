@@ -18,17 +18,27 @@ export const StickyWhatsApp: React.FC<StickyWhatsAppProps> = ({ locale }) => {
   return (
     <aside
       aria-label="Quick WhatsApp contact"
-      className="fixed bottom-5 right-5 z-40 flex items-center"
+      className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-[max(1.25rem,env(safe-area-inset-right))] z-40 flex items-center"
     >
       <a
         href={buildWhatsAppLink(prefill)}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Chat directly on WhatsApp with Diamond Fibre sales desk"
-        className="group flex items-center gap-2 bg-[#25D366] text-white p-3.5 sm:px-4 sm:py-3 rounded-full shadow-[var(--shadow-floating)] hover:bg-[#1EBE5D] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#25D366]/40 transition-all duration-200 active:scale-95 min-h-[48px] min-w-[48px]"
+        aria-label={
+          locale === 'hi'
+            ? 'डायमंड फाइबर सेल्स डेस्क से व्हाट्सएप पर चैट करें'
+            : 'Chat directly on WhatsApp with Diamond Fibre sales desk'
+        }
+        className="group flex items-center gap-2.5 bg-[var(--color-carbon-900)] text-white hover:bg-[var(--color-carbon-800)] border border-[var(--color-carbon-700)] p-3 sm:px-4 sm:py-3 rounded-full shadow-[var(--shadow-floating)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[var(--color-terracotta-500)]/40 transition-all duration-150 active:scale-[1.02] press-scale ease-out motion-reduce:transform-none min-h-[48px] min-w-[48px]"
       >
-        <MessageCircle className="w-6 h-6 shrink-0" />
-        <span className="hidden sm:inline-block text-xs font-bold tracking-wide">
+        <span className="relative flex items-center justify-center shrink-0">
+          <MessageCircle className="w-5 h-5 text-[#25D366] shrink-0" />
+          <span
+            className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#25D366]"
+            aria-hidden="true"
+          />
+        </span>
+        <span className="hidden sm:inline-block text-xs font-semibold tracking-wide text-[var(--color-warm-ivory-100)]">
           {locale === 'hi' ? 'व्हाट्सएप पूछताछ' : 'WhatsApp Enquiry'}
         </span>
       </a>
