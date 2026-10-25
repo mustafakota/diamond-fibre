@@ -98,20 +98,29 @@ export function buildLocalizedMetadata({
   const currentCanonical = locale === 'hi' ? hiUrl : enUrl;
 
   const defaultImage: OpenGraphImageConfig = {
-    url: `${baseUrl}/images/logo/diamond-fibre-logo.png`,
-    width: 1086,
-    height: 362,
-    alt: locale === 'hi' ? 'डायमंड फाइबर रतलाम' : 'Diamond Fibre Ratlam',
+    url: `${baseUrl}/images/og-preview.jpg`,
+    width: 1200,
+    height: 630,
+    alt: locale === 'hi' ? 'डायमंड फाइबर — रतलाम, मध्य प्रदेश में बेडिंग निर्माता' : 'Diamond Fibre — Bedding Manufacturer in Ratlam, Madhya Pradesh',
   };
 
   const resolvedImage = ogImage
     ? {
         url: ogImage.url.startsWith('http') ? ogImage.url : `${baseUrl}${ogImage.url.startsWith('/') ? '' : '/'}${ogImage.url}`,
+        secureUrl: ogImage.url.startsWith('https') ? ogImage.url : undefined,
         width: ogImage.width || 1200,
         height: ogImage.height || 630,
         alt: ogImage.alt || title,
+        type: 'image/jpeg' as const,
       }
-    : defaultImage;
+    : {
+        url: defaultImage.url,
+        secureUrl: defaultImage.url.startsWith('https') ? defaultImage.url : undefined,
+        width: defaultImage.width,
+        height: defaultImage.height,
+        alt: defaultImage.alt,
+        type: 'image/jpeg' as const,
+      };
 
   return {
     metadataBase: new URL(baseUrl),
@@ -140,7 +149,7 @@ export function buildLocalizedMetadata({
       card: 'summary_large_image',
       title,
       description,
-      images: [resolvedImage.url],
+      images: [{ url: resolvedImage.url, alt: resolvedImage.alt }],
     },
     robots: {
       index: true,
