@@ -186,6 +186,14 @@ export const Footer: React.FC<FooterProps> = ({ locale }) => {
                     {dict.nav.contact}
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    href={`/${locale}/privacy-policy`}
+                    className="py-1.5 min-h-[40px] inline-flex items-center hover:text-white hover:translate-x-0.5 active:scale-[1.02] press-scale duration-150 ease-out motion-reduce:transform-none transition-all"
+                  >
+                    {dict.footer.privacyPolicy}
+                  </Link>
+                </li>
               </ul>
             </nav>
           </div>

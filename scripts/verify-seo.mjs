@@ -23,11 +23,13 @@ const routes = [
   '/hi/our-story',
   '/en/contact',
   '/hi/contact',
+  '/en/privacy-policy',
+  '/hi/privacy-policy',
   '/robots.txt',
   '/sitemap.xml',
 ];
 
-/** The 18 canonical path segments expected in the sitemap (without the base URL). */
+/** The 20 canonical path segments expected in the sitemap (without the base URL). */
 const EXPECTED_SITEMAP_PATHS = [
   '/en',
   '/hi',
@@ -47,6 +49,8 @@ const EXPECTED_SITEMAP_PATHS = [
   '/hi/our-story',
   '/en/contact',
   '/hi/contact',
+  '/en/privacy-policy',
+  '/hi/privacy-policy',
 ];
 
 const targetUrl = process.argv[2] || process.env.TARGET_URL || 'http://localhost:3000';
@@ -130,10 +134,10 @@ function validateSitemapXml(xmlString, expectedBaseUrl) {
     problems.push('<urlset> must not declare xmlns:xhtml (causes browser XML viewer corruption)');
   }
 
-  // 7. Exactly 18 <url> entries
+  // 7. Exactly 20 <url> entries
   const urlEntries = Array.isArray(urlset.url) ? urlset.url : (urlset.url ? [urlset.url] : []);
-  if (urlEntries.length !== 18) {
-    problems.push(`Expected exactly 18 <url> entries, found ${urlEntries.length}`);
+  if (urlEntries.length !== 20) {
+    problems.push(`Expected exactly 20 <url> entries, found ${urlEntries.length}`);
   }
 
   // 8. No <xhtml:link> elements inside <url>
@@ -159,10 +163,10 @@ function validateSitemapXml(xmlString, expectedBaseUrl) {
     problems.push(`${wrongDomain.length} <loc>(s) not on expected domain "${baseUrl}": ${wrongDomain.slice(0, 3).join(', ')}`);
   }
 
-  // 12. All 18 intended paths must be present; no unexpected paths
+  // 12. All 20 intended paths must be present; no unexpected paths
   const locPaths = locs.map(l => { try { return new URL(l).pathname; } catch { return null; } });
   const unexpected = locPaths.filter(p => p !== null && !EXPECTED_SITEMAP_PATHS.includes(p));
-  if (unexpected.length > 0) problems.push(`Unexpected path(s) not in 18 intended routes: ${unexpected.join(', ')}`);
+  if (unexpected.length > 0) problems.push(`Unexpected path(s) not in 20 intended routes: ${unexpected.join(', ')}`);
   const missing = EXPECTED_SITEMAP_PATHS.filter(p => !locPaths.includes(p));
   if (missing.length > 0) problems.push(`Missing route(s) from sitemap: ${missing.join(', ')}`);
 
@@ -223,7 +227,7 @@ function verifyPrerendered() {
           const lastmodCount = (sitemapXml.match(/<lastmod>/g) || []).length;
           if (problems.length === 0) {
             console.log(`   XML: Valid <urlset> with official namespace, ${urlCount} URLs, ${lastmodCount} <lastmod> timestamps, no xhtml conflict`);
-            console.log(`   Locs: All 18 unique, on expected domain, all intended routes present`);
+            console.log(`   Locs: All 20 unique, on expected domain, all intended routes present`);
           } else {
             for (const p of problems) console.error(`   ❌ ${p}`);
             allPassed = false;
@@ -304,7 +308,7 @@ async function verify() {
           const lastmodCount = (res.body.match(/<lastmod>/g) || []).length;
           if (problems.length === 0) {
             console.log(`   XML: Valid <urlset>, ${urlCount} URLs, ${lastmodCount} <lastmod> timestamps, no xhtml conflict`);
-            console.log(`   Locs: All 18 unique, on expected domain, all intended routes present`);
+            console.log(`   Locs: All 20 unique, on expected domain, all intended routes present`);
           } else {
             for (const p of problems) console.error(`   ❌ ${p}`);
             allPassed = false;

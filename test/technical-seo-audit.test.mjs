@@ -7,7 +7,7 @@ import { buildLocalizedMetadata, CANONICAL_PRODUCTION_URL } from '../src/lib/seo
 
 const ROOT_DIR = process.cwd();
 
-/** The 18 canonical paths the sitemap must contain. */
+/** The 20 canonical paths the sitemap must contain. */
 const EXPECTED_SITEMAP_PATHS = [
   '/en', '/hi', '/en/products', '/hi/products',
   '/en/products/mattresses', '/hi/products/mattresses',
@@ -17,6 +17,7 @@ const EXPECTED_SITEMAP_PATHS = [
   '/en/wholesale', '/hi/wholesale',
   '/en/our-story', '/hi/our-story',
   '/en/contact', '/hi/contact',
+  '/en/privacy-policy', '/hi/privacy-policy',
 ];
 
 /**
@@ -94,10 +95,10 @@ function validateSitemapXml(xmlString, expectedBaseUrl) {
     problems.push('<urlset> must not declare xmlns:xhtml (causes browser XML viewer corruption)');
   }
 
-  // 7. Exactly 18 <url> entries
+  // 7. Exactly 20 <url> entries
   const urlEntries = Array.isArray(urlset.url) ? urlset.url : (urlset.url ? [urlset.url] : []);
-  if (urlEntries.length !== 18) {
-    problems.push(`Expected exactly 18 <url> entries, found ${urlEntries.length}`);
+  if (urlEntries.length !== 20) {
+    problems.push(`Expected exactly 20 <url> entries, found ${urlEntries.length}`);
   }
 
   // 8. No <xhtml:link> elements inside <url>
@@ -123,10 +124,10 @@ function validateSitemapXml(xmlString, expectedBaseUrl) {
     problems.push(`${wrongDomain.length} <loc>(s) not on expected domain "${baseUrl}": ${wrongDomain.slice(0, 3).join(', ')}`);
   }
 
-  // 12. All 18 intended paths must be present; no unexpected paths
+  // 12. All 20 intended paths must be present; no unexpected paths
   const locPaths = locs.map(l => { try { return new URL(l).pathname; } catch { return null; } });
   const unexpected = locPaths.filter(p => p !== null && !EXPECTED_SITEMAP_PATHS.includes(p));
-  if (unexpected.length > 0) problems.push(`Unexpected path(s) not in 18 intended routes: ${unexpected.join(', ')}`);
+  if (unexpected.length > 0) problems.push(`Unexpected path(s) not in 20 intended routes: ${unexpected.join(', ')}`);
   const missing = EXPECTED_SITEMAP_PATHS.filter(p => !locPaths.includes(p));
   if (missing.length > 0) problems.push(`Missing route(s) from sitemap: ${missing.join(', ')}`);
 
@@ -158,7 +159,7 @@ test('Technical SEO: sitemap.ts configuration and canonical rules', () => {
   // Must not include redirected legacy routes
   assert.ok(!sitemapContent.includes("'products/gaddas'"), 'Sitemap must not contain legacy redirected gaddas route');
 
-  // Must include all 9 core routes (which generate 18 URLs: 9 EN + 9 HI)
+  // Must include all 10 core routes (which generate 20 URLs: 10 EN + 10 HI)
   const expectedRoutes = [
     "''",
     "'products'",
@@ -169,6 +170,7 @@ test('Technical SEO: sitemap.ts configuration and canonical rules', () => {
     "'wholesale'",
     "'our-story'",
     "'contact'",
+    "'privacy-policy'",
   ];
   for (const r of expectedRoutes) {
     assert.ok(sitemapContent.includes(r), `Sitemap must include route ${r}`);
@@ -217,9 +219,9 @@ test('Technical SEO: sitemap.ts configuration and canonical rules', () => {
     // No xhtml namespace conflict
     assert.ok(!urlset['@_xmlns:xhtml'], 'Sitemap must not include conflicting xmlns:xhtml');
 
-    // Exactly 18 <url> entries
+    // Exactly 20 <url> entries
     const urlEls = Array.isArray(urlset.url) ? urlset.url : [urlset.url];
-    assert.equal(urlEls.length, 18, 'Sitemap must contain exactly 18 <url> elements (9 EN + 9 HI)');
+    assert.equal(urlEls.length, 20, 'Sitemap must contain exactly 20 <url> elements (10 EN + 10 HI)');
 
     // No xhtml elements
     assert.ok(
@@ -229,10 +231,10 @@ test('Technical SEO: sitemap.ts configuration and canonical rules', () => {
 
     // Extract <loc> values
     const locs = urlEls.map(u => (u && typeof u.loc === 'string' ? u.loc.trim() : null)).filter(Boolean);
-    assert.equal(locs.length, 18, 'Every <url> must have a <loc>');
+    assert.equal(locs.length, 20, 'Every <url> must have a <loc>');
 
     // All <loc> must be unique
-    assert.equal(new Set(locs).size, 18, 'All 18 <loc> values must be unique');
+    assert.equal(new Set(locs).size, 20, 'All 20 <loc> values must be unique');
 
     // All <loc> must use a consistent base URL (derived from first entry).
     // The canonical production domain check is performed by verify-seo.mjs when run against the live build.
@@ -245,10 +247,10 @@ test('Technical SEO: sitemap.ts configuration and canonical rules', () => {
       );
     }
 
-    // Paths must match exactly the 18 intended routes
+    // Paths must match exactly the 20 intended routes
     const locPaths = locs.map(l => { try { return new URL(l).pathname; } catch { return null; } });
     const unexpected = locPaths.filter(p => p !== null && !EXPECTED_SITEMAP_PATHS.includes(p));
-    assert.equal(unexpected.length, 0, `Unexpected path(s) not in 18 intended routes: ${unexpected.join(', ')}`);
+    assert.equal(unexpected.length, 0, `Unexpected path(s) not in 20 intended routes: ${unexpected.join(', ')}`);
     const missing = EXPECTED_SITEMAP_PATHS.filter(p => !locPaths.includes(p));
     assert.equal(missing.length, 0, `Missing expected route(s) from sitemap: ${missing.join(', ')}`);
 
@@ -256,8 +258,8 @@ test('Technical SEO: sitemap.ts configuration and canonical rules', () => {
     const lastmodValues = urlEls.map(u => (u && u.lastmod !== undefined ? String(u.lastmod).trim() : null));
     const presentLastmods = lastmodValues.filter(l => l !== null);
     assert.ok(
-      presentLastmods.length === 18 || presentLastmods.length === 0,
-      `Sitemap must either have all 18 <lastmod> entries or none. Found ${presentLastmods.length}.`
+      presentLastmods.length === 20 || presentLastmods.length === 0,
+      `Sitemap must either have all 20 <lastmod> entries or none. Found ${presentLastmods.length}.`
     );
     for (const lm of presentLastmods) {
       assert.ok(!isNaN(new Date(lm).getTime()), `Invalid ISO date in <lastmod>: "${lm}"`);
@@ -364,6 +366,7 @@ test('Technical SEO: Zero fabricated ratings, reviews, or prices in schema acros
     'src/app/[locale]/wholesale/page.tsx',
     'src/app/[locale]/our-story/page.tsx',
     'src/app/[locale]/contact/page.tsx',
+    'src/app/[locale]/privacy-policy/page.tsx',
     'src/app/[locale]/layout.tsx',
   ];
 
@@ -502,7 +505,7 @@ test('Sitemap XML Parser Robustness: rejects non-string and malformed XML struct
   assert.notEqual(XMLValidator.validate('<invalid><tag></invalid>'), true);
 });
 
-test('Sitemap XML Parser Robustness: validates valid 18-route sitemap and rejects invalid sitemap schemas and data', () => {
+test('Sitemap XML Parser Robustness: validates valid 20-route sitemap and rejects invalid sitemap schemas and data', () => {
   function makeSitemap({
     rootTag = 'urlset',
     xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9',
@@ -537,10 +540,10 @@ test('Sitemap XML Parser Robustness: validates valid 18-route sitemap and reject
     return xml;
   }
 
-  // 1. Valid clean 18-route sitemap with no lastmod
+  // 1. Valid clean 20-route sitemap with no lastmod
   assert.deepEqual(validateSitemapXml(makeSitemap(), 'https://diamondfibre.shop'), []);
 
-  // 2. Valid clean 18-route sitemap with all valid ISO lastmods
+  // 2. Valid clean 20-route sitemap with all valid ISO lastmods
   assert.deepEqual(validateSitemapXml(makeSitemap({ lastmodMode: 'all-valid' }), 'https://diamondfibre.shop'), []);
 
   // 3. Wrong root tag
@@ -568,7 +571,7 @@ test('Sitemap XML Parser Robustness: validates valid 18-route sitemap and reject
 
   // 8. Duplicate <loc> values
   const dupes = validateSitemapXml(
-    makeSitemap({ paths: [...EXPECTED_SITEMAP_PATHS.slice(0, 17), EXPECTED_SITEMAP_PATHS[0]] }),
+    makeSitemap({ paths: [...EXPECTED_SITEMAP_PATHS.slice(0, 19), EXPECTED_SITEMAP_PATHS[0]] }),
     'https://diamondfibre.shop'
   );
   assert.ok(dupes.some(p => p.includes('Duplicate <loc> values')));
@@ -577,24 +580,24 @@ test('Sitemap XML Parser Robustness: validates valid 18-route sitemap and reject
   const wrongDomain = validateSitemapXml(makeSitemap({ domain: 'https://other-site.com' }), 'https://diamondfibre.shop');
   assert.ok(wrongDomain.some(p => p.includes('not on expected domain')));
 
-  // 10. Unexpected path not in the 18 intended routes
+  // 10. Unexpected path not in the 20 intended routes
   const unexpectedRoute = validateSitemapXml(
-    makeSitemap({ paths: [...EXPECTED_SITEMAP_PATHS.slice(0, 17), '/en/admin-dashboard'] }),
+    makeSitemap({ paths: [...EXPECTED_SITEMAP_PATHS.slice(0, 19), '/en/admin-dashboard'] }),
     'https://diamondfibre.shop'
   );
-  assert.ok(unexpectedRoute.some(p => p.includes('Unexpected path(s) not in 18 intended routes')));
+  assert.ok(unexpectedRoute.some(p => p.includes('Unexpected path(s) not in 20 intended routes')));
 
-  // 11. Fewer than 18 entries
+  // 11. Fewer than 20 entries
   const fewer = validateSitemapXml(makeSitemap({ paths: EXPECTED_SITEMAP_PATHS.slice(0, 15) }), 'https://diamondfibre.shop');
-  assert.ok(fewer.some(p => p.includes('Expected exactly 18 <url> entries, found 15')));
+  assert.ok(fewer.some(p => p.includes('Expected exactly 20 <url> entries, found 15')));
   assert.ok(fewer.some(p => p.includes('Missing route(s) from sitemap')));
 
-  // 12. More than 18 entries
+  // 12. More than 20 entries
   const more = validateSitemapXml(
     makeSitemap({ paths: [...EXPECTED_SITEMAP_PATHS, '/en/extra-page'] }),
     'https://diamondfibre.shop'
   );
-  assert.ok(more.some(p => p.includes('Expected exactly 18 <url> entries, found 19')));
+  assert.ok(more.some(p => p.includes('Expected exactly 20 <url> entries, found 21')));
 
   // 13. Inconsistent <lastmod> presence
   const inconsistentLm = validateSitemapXml(makeSitemap({ lastmodMode: 'partial' }), 'https://diamondfibre.shop');

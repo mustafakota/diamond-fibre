@@ -178,6 +178,7 @@ export const en = {
     provenance: 'Ratlam, Madhya Pradesh • Bedding Manufacturer',
     copyright: '© 2026 Diamond Fibre. All rights reserved.',
     backToTop: 'Back to top',
+    privacyPolicy: 'Privacy Policy',
     disclaimer:
       'Bedding manufacturer based in Ratlam, Madhya Pradesh. Product options, designs, and dimensions subject to current production runs and confirmation.',
   },
