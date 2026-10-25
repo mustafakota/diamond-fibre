@@ -381,7 +381,7 @@ test('Technical SEO: Zero fabricated ratings, reviews, or prices in schema acros
   }
 });
 
-test('Social Preview: og-preview.jpg exists in public/images/ and meets Open Graph dimension requirements', () => {
+test('Social Preview: og-preview.jpg exists in public/images/ and meets Open Graph dimension requirements', async () => {
   const ogImagePath = path.join(ROOT_DIR, 'public', 'images', 'og-preview.jpg');
   assert.ok(fs.existsSync(ogImagePath), 'public/images/og-preview.jpg must exist');
 
@@ -396,9 +396,25 @@ test('Social Preview: og-preview.jpg exists in public/images/ and meets Open Gra
   fs.closeSync(fd);
   assert.equal(buf[0], 0xFF, 'og-preview.jpg must start with JPEG magic byte 0xFF');
   assert.equal(buf[1], 0xD8, 'og-preview.jpg must have JPEG magic byte 0xD8');
+
+  // Verify exact 1200x630 dimensions and JPEG format
+  const sharp = (await import('sharp')).default;
+  const meta = await sharp(ogImagePath).metadata();
+  assert.equal(meta.width, 1200, 'og-preview.jpg width must be 1200px');
+  assert.equal(meta.height, 630, 'og-preview.jpg height must be 630px');
+  assert.equal(meta.format, 'jpeg', 'og-preview.jpg must be JPEG format');
+
+  // Verify emblem is centered and outer margins (x < 150 and x > 1050) are clean background with no cropped wordmark
+  const { data } = await sharp(ogImagePath).raw().toBuffer({ resolveWithObject: true });
+  for (let y = 100; y < 500; y += 50) {
+    const leftIdx = (y * 1200 + 100) * 3;
+    const rightIdx = (y * 1200 + 1100) * 3;
+    assert.ok(data[leftIdx] > 190, `Left margin at (100, ${y}) must be clean background (got: ${data[leftIdx]})`);
+    assert.ok(data[rightIdx] > 190, `Right margin at (1100, ${y}) must be clean background (got: ${data[rightIdx]})`);
+  }
 });
 
-test('Social Preview: buildLocalizedMetadata emits 1200x630 og-preview OG image with alt text', () => {
+test('Social Preview: buildLocalizedMetadata emits 1200x630 og-preview OG image with localized emblem alt text', () => {
   const originalEnv = process.env.NODE_ENV;
   const originalUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
@@ -406,6 +422,7 @@ test('Social Preview: buildLocalizedMetadata emits 1200x630 og-preview OG image 
     process.env.NODE_ENV = 'production';
     process.env.NEXT_PUBLIC_SITE_URL = '';
 
+    // English Default Metadata
     const enMeta = buildLocalizedMetadata({
       locale: 'en',
       pathSegment: '',
@@ -425,6 +442,10 @@ test('Social Preview: buildLocalizedMetadata emits 1200x630 og-preview OG image 
       assert.equal(ogImage.width, 1200, 'OG image width must be 1200');
       assert.equal(ogImage.height, 630, 'OG image height must be 630');
       assert.ok(ogImage.alt && String(ogImage.alt).length > 0, 'OG image must have a non-empty alt text');
+      assert.ok(
+        String(ogImage.alt).toLowerCase().includes('emblem'),
+        `English default OG image alt text must describe the emblem (got: "${ogImage.alt}")`
+      );
     }
 
     // Twitter card must include image with alt
@@ -435,7 +456,25 @@ test('Social Preview: buildLocalizedMetadata emits 1200x630 og-preview OG image 
     if (twImage && typeof twImage === 'object' && 'url' in twImage) {
       assert.ok(String(twImage.url).includes('/images/og-preview.jpg'), 'Twitter image URL must reference og-preview.jpg');
       assert.ok('alt' in twImage && twImage.alt, 'Twitter image must have an alt text');
+      assert.ok(
+        String(twImage.alt).toLowerCase().includes('emblem'),
+        `English Twitter image alt text must describe the emblem (got: "${twImage.alt}")`
+      );
     }
+
+    // Hindi Default Metadata
+    const hiMeta = buildLocalizedMetadata({
+      locale: 'hi',
+      pathSegment: '',
+      title: 'डायमंड फाइबर | बेडिंग निर्माता',
+      description: 'परीक्षण',
+    });
+    const hiOgImage = hiMeta.openGraph?.images?.[0];
+    assert.ok(hiOgImage && typeof hiOgImage === 'object' && 'alt' in hiOgImage);
+    assert.ok(
+      String(hiOgImage.alt).includes('प्रतीक चिन्ह') || String(hiOgImage.alt).includes('Emblem'),
+      `Hindi default OG image alt text must describe the emblem (got: "${hiOgImage.alt}")`
+    );
   } finally {
     process.env.NODE_ENV = originalEnv;
     process.env.NEXT_PUBLIC_SITE_URL = originalUrl;

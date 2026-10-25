@@ -101,7 +101,10 @@ export function buildLocalizedMetadata({
     url: `${baseUrl}/images/og-preview.jpg`,
     width: 1200,
     height: 630,
-    alt: locale === 'hi' ? 'डायमंड फाइबर — रतलाम, मध्य प्रदेश में बेडिंग निर्माता' : 'Diamond Fibre — Bedding Manufacturer in Ratlam, Madhya Pradesh',
+    alt:
+      locale === 'hi'
+        ? 'डायमंड फाइबर ब्रांड प्रतीक चिन्ह (Emblem) — रतलाम, मध्य प्रदेश'
+        : 'Diamond Fibre Brand Emblem — Ratlam, Madhya Pradesh',
   };
 
   const resolvedImage = ogImage
