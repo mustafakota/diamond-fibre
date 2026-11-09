@@ -35,6 +35,13 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${manrope.variable} ${inter.variable} ${notoSansDevanagari.variable}`}
     >
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6323208093097316"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="antialiased min-h-screen bg-[var(--color-warm-ivory-200)] text-[var(--color-carbon-900)]">
         <GoogleAnalytics />
         <MicrosoftClarity />

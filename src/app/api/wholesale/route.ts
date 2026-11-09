@@ -4,8 +4,6 @@ import {
   type WholesalePayload,
 } from '@/lib/email/wholesale-email';
 
-export { handleWholesaleSubmission, type WholesalePayload };
-
 export async function POST(request: Request) {
   try {
     const body: WholesalePayload = await request.json();
